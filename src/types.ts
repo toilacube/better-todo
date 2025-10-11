@@ -26,10 +26,10 @@ export interface TaskHistory {
   [dateString: string]: HistoryEntry;
 }
 
-export type TabType = "daily" | "mustDo";
+export type TabType = "today" | "mustDo";
 
 export interface AppState {
-  dailyTasks: Task[];
+  todayTasks: Task[];
   mustDoTasks: Task[];
   taskHistory: TaskHistory;
   lastDate: string;

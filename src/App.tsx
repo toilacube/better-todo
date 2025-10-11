@@ -19,20 +19,20 @@ import "./App.css";
 type View = "main" | "statistics";
 
 function App() {
-  const [activeTab, setActiveTab] = useState<TabType>("daily");
+  const [activeTab, setActiveTab] = useState<TabType>("today");
   const [view, setView] = useState<View>("main");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const { settings, updateSettings } = useSettings();
   const { addHistoryEntry, getAllHistoryEntries } = useHistory();
-  const dailyTasks = useTasks("daily");
+  const todayTasks = useTasks("today");
   const mustDoTasks = useTasks("mustDo");
 
   // Apply dark mode
   useDarkMode(settings.darkMode);
 
   // Get current tasks based on active tab
-  const currentTasks = activeTab === "daily" ? dailyTasks : mustDoTasks;
+  const currentTasks = activeTab === "today" ? todayTasks : mustDoTasks;
 
   // Check for day transition on mount and periodically
   useEffect(() => {
@@ -41,19 +41,19 @@ function App() {
 
       if (isNewDay(lastDate)) {
         // Save yesterday's tasks to history
-        const yesterdayDailyTasks = storage.getDailyTasks();
-        if (yesterdayDailyTasks.length > 0) {
-          addHistoryEntry(lastDate, yesterdayDailyTasks);
+        const yesterdayTodayTasks = storage.getTodayTasks();
+        if (yesterdayTodayTasks.length > 0) {
+          addHistoryEntry(lastDate, yesterdayTodayTasks);
         }
 
         // Handle carry-over or clear
         if (settings.autoCarryOver) {
-          const incompleteTasks = getIncompleteTasks(yesterdayDailyTasks);
-          storage.setDailyTasks(incompleteTasks);
-          dailyTasks.updateTasks(incompleteTasks);
+          const incompleteTasks = getIncompleteTasks(yesterdayTodayTasks);
+          storage.setTodayTasks(incompleteTasks);
+          todayTasks.updateTasks(incompleteTasks);
         } else {
-          storage.setDailyTasks([]);
-          dailyTasks.updateTasks([]);
+          storage.setTodayTasks([]);
+          todayTasks.updateTasks([]);
         }
 
         // Update last date
@@ -118,10 +118,10 @@ function App() {
         transition={{ duration: 0.3, delay: 0.2 }}
       >
         <button
-          onClick={() => setActiveTab("daily")}
-          className={`tab ${activeTab === "daily" ? "active" : ""}`}
+          onClick={() => setActiveTab("today")}
+          className={`tab ${activeTab === "today" ? "active" : ""}`}
         >
-          Daily
+          Today
         </button>
         <button
           onClick={() => setActiveTab("mustDo")}

@@ -18,14 +18,14 @@ export const useTasks = (type: TabType) => {
   // Load tasks from storage on mount
   useEffect(() => {
     const loadedTasks =
-      type === "daily" ? storage.getDailyTasks() : storage.getMustDoTasks();
+      type === "today" ? storage.getTodayTasks() : storage.getMustDoTasks();
     setTasks(loadedTasks);
   }, [type]);
 
   // Save tasks to storage whenever they change
   useEffect(() => {
-    if (type === "daily") {
-      storage.setDailyTasks(tasks);
+    if (type === "today") {
+      storage.setTodayTasks(tasks);
     } else {
       storage.setMustDoTasks(tasks);
     }

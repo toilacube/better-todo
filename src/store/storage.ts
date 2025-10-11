@@ -2,7 +2,7 @@
 import { Task, TaskHistory, Settings } from "../types";
 
 const STORAGE_KEYS = {
-  DAILY_TASKS: "dailyTasks",
+  TODAY_TASKS: "dailyTasks", // Keep the same key for backward compatibility
   MUST_DO_TASKS: "mustDoTasks",
   TASK_HISTORY: "taskHistory",
   LAST_DATE: "lastDate",
@@ -37,8 +37,8 @@ export const storage = {
   },
 
   // Specific getters
-  getDailyTasks(): Task[] {
-    return this.get<Task[]>(STORAGE_KEYS.DAILY_TASKS, []);
+  getTodayTasks(): Task[] {
+    return this.get<Task[]>(STORAGE_KEYS.TODAY_TASKS, []);
   },
 
   getMustDoTasks(): Task[] {
@@ -58,8 +58,8 @@ export const storage = {
   },
 
   // Specific setters
-  setDailyTasks(tasks: Task[]): void {
-    this.set(STORAGE_KEYS.DAILY_TASKS, tasks);
+  setTodayTasks(tasks: Task[]): void {
+    this.set(STORAGE_KEYS.TODAY_TASKS, tasks);
   },
 
   setMustDoTasks(tasks: Task[]): void {
