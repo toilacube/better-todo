@@ -1,0 +1,65 @@
+/* Task Input Styles - Section 6.3 */
+.task-input {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+  height: 64px;
+  position: relative;
+}
+
+.task-input::before {
+  content: ">";
+  color: var(--color-fg);
+  font-size: var(--text-body-large);
+  opacity: var(--opacity-subtle);
+  margin-right: var(--space-sm);
+}
+
+.task-input-field {
+  flex: 1;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: var(--text-body-large);
+  color: var(--color-fg);
+  outline: none;
+  font-weight: 400;
+  font-family: var(--font-mono);
+  padding: var(--space-sm) 0;
+  transition: border-color var(--duration-fast) var(--ease-smooth);
+}
+
+.task-input-field:focus {
+  border-bottom-color: var(--color-fg);
+}
+
+.task-input-field::placeholder {
+  color: var(--color-fg);
+  opacity: var(--opacity-muted);
+}
+
+.task-input-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: var(--opacity-subtle);
+  transition: opacity var(--duration-fast) var(--ease-smooth),
+    transform var(--duration-fast) var(--ease-smooth);
+  color: var(--color-fg);
+  padding: var(--space-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.task-input-button:hover {
+  opacity: var(--opacity-full);
+  transform: rotate(90deg);
+}
+
+.task-input-button:active {
+  transform: rotate(90deg) scale(0.9);
+}

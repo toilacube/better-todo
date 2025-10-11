@@ -1,0 +1,212 @@
+/* Statistics Page Styles - Section 6.7, 6.9 */
+.statistics-page {
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+}
+
+.statistics-header {
+  padding: var(--space-lg);
+  border-bottom: 1px solid rgba(0, 0, 0, var(--opacity-ghost));
+}
+
+.back-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-fg);
+  opacity: var(--opacity-subtle);
+  transition: opacity var(--duration-fast) var(--ease-smooth),
+    transform var(--duration-fast) var(--ease-smooth);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--text-body);
+  font-weight: 400;
+  font-family: var(--font-mono);
+  padding: var(--space-xs);
+}
+
+.back-button:hover {
+  opacity: var(--opacity-full);
+  transform: translateX(-4px);
+}
+
+.statistics-content {
+  max-width: var(--container-stats);
+  margin: 0 auto;
+  padding: var(--space-xl);
+}
+
+.statistics-title {
+  font-size: var(--text-heading);
+  font-weight: 400;
+  margin-bottom: var(--space-lg);
+  font-family: var(--font-mono);
+}
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.summary-card {
+  padding: var(--space-xl);
+  border: 1px solid rgba(0, 0, 0, var(--opacity-ghost));
+  border-radius: var(--radius-lg);
+  text-align: center;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: border-color var(--duration-fast) var(--ease-smooth),
+    transform var(--duration-normal) var(--ease-smooth);
+}
+
+.summary-card:hover {
+  border-color: rgba(0, 0, 0, var(--opacity-muted));
+  transform: scale(1.02);
+}
+
+.summary-value {
+  font-size: var(--text-hero);
+  font-weight: 300;
+  margin-bottom: var(--space-sm);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-label {
+  font-size: var(--text-small);
+  color: var(--color-fg);
+  opacity: var(--opacity-subtle);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-wide);
+  font-family: var(--font-mono);
+}
+
+.chart-section {
+  margin-bottom: var(--space-xl);
+}
+
+.chart-title {
+  font-size: var(--text-body-large);
+  font-weight: 400;
+  margin-bottom: var(--space-md);
+  font-family: var(--font-mono);
+}
+
+.charts-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+.streak-container {
+  display: flex;
+  gap: var(--space-lg);
+  justify-content: center;
+  padding: var(--space-lg) 0;
+}
+
+.streak-item {
+  text-align: center;
+}
+
+.streak-icon {
+  font-size: var(--text-title);
+  margin-bottom: var(--space-sm);
+}
+
+.streak-value {
+  font-size: var(--text-heading);
+  font-weight: 400;
+  margin-bottom: var(--space-xs);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.streak-label {
+  font-size: var(--text-tiny);
+  color: var(--color-fg);
+  opacity: var(--opacity-subtle);
+  font-family: var(--font-mono);
+}
+
+.history-section {
+  margin-top: var(--space-xl);
+}
+
+.history-card {
+  border: 1px solid rgba(0, 0, 0, var(--opacity-ghost));
+  border-radius: 8px;
+  margin-bottom: var(--space-md);
+  transition: border-color var(--duration-fast) var(--ease-smooth),
+    transform var(--duration-fast) var(--ease-smooth);
+}
+
+.history-card:hover {
+  border-color: rgba(0, 0, 0, var(--opacity-muted));
+  transform: translateY(-2px);
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md);
+  border-bottom: 1px solid rgba(0, 0, 0, var(--opacity-ghost));
+}
+
+.history-date {
+  font-size: var(--text-body);
+  font-weight: 400;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+
+.history-count {
+  font-size: var(--text-small);
+  color: var(--color-secondary);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.history-tasks {
+  padding: var(--space-md);
+}
+
+/* Recharts customization - Section 6.8 */
+.recharts-text {
+  fill: var(--color-fg);
+  font-size: var(--text-tiny);
+  font-family: var(--font-mono);
+}
+
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: var(--color-fg);
+  opacity: var(--opacity-ghost);
+}
+
+.recharts-line {
+  stroke-width: 2px;
+}
+
+.recharts-bar {
+  animation: barGrow var(--duration-slow) var(--ease-smooth);
+}
+
+@keyframes barGrow {
+  from {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+  to {
+    transform: scaleY(1);
+  }
+}

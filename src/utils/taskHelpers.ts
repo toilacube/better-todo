@@ -1,4 +1,4 @@
-import { Task } from '../types';
+import { Task } from "../types";
 
 // Generate unique task ID
 export const generateTaskId = (): number => {
@@ -15,7 +15,9 @@ export const createTask = (text: string): Task => ({
 });
 
 // Count total and completed tasks (recursive)
-export const countTasks = (tasks: Task[]): { total: number; completed: number } => {
+export const countTasks = (
+  tasks: Task[]
+): { total: number; completed: number } => {
   let total = 0;
   let completed = 0;
 
@@ -34,7 +36,9 @@ export const countTasks = (tasks: Task[]): { total: number; completed: number } 
 };
 
 // Count only root-level tasks
-export const countRootTasks = (tasks: Task[]): { total: number; completed: number } => {
+export const countRootTasks = (
+  tasks: Task[]
+): { total: number; completed: number } => {
   const total = tasks.length;
   const completed = tasks.filter((task) => task.completed).length;
   return { total, completed };
@@ -174,8 +178,52 @@ export const getIncompleteTasks = (tasks: Task[]): Task[] => {
 };
 
 // Count completed subtasks
-export const countCompletedSubtasks = (task: Task): { completed: number; total: number } => {
+export const countCompletedSubtasks = (
+  task: Task
+): { completed: number; total: number } => {
   const total = task.subtasks.length;
   const completed = task.subtasks.filter((st) => st.completed).length;
   return { completed, total };
+};
+
+// Expand all tasks recursively
+export const expandAllTasks = (tasks: Task[]): Task[] => {
+  return tasks.map((task) => ({
+    ...task,
+    expanded: task.subtasks.length > 0,
+    subtasks: expandAllTasks(task.subtasks),
+  }));
+};
+
+// Collapse all tasks recursively
+export const collapseAllTasks = (tasks: Task[]): Task[] => {
+  return tasks.map((task) => ({
+    ...task,
+    expanded: false,
+    subtasks: collapseAllTasks(task.subtasks),
+  }));
+};
+
+// Check if all tasks with subtasks are expanded
+export const areAllTasksExpanded = (tasks: Task[]): boolean => {
+  const checkRecursive = (taskList: Task[]): boolean => {
+    for (const task of taskList) {
+      if (task.subtasks.length > 0) {
+        if (!task.expanded) return false;
+        if (!checkRecursive(task.subtasks)) return false;
+      }
+    }
+    return true;
+  };
+
+  // If there are no tasks with subtasks, return false (nothing to expand/collapse)
+  const hasTasksWithSubtasks = tasks.some(
+    (task) =>
+      task.subtasks.length > 0 ||
+      task.subtasks.some((subtask) => subtask.subtasks.length > 0)
+  );
+
+  if (!hasTasksWithSubtasks) return false;
+
+  return checkRecursive(tasks);
 };

@@ -1,0 +1,28 @@
+/* Empty State Styles - Section 7.3 */
+.empty-state {
+  text-align: center;
+  color: var(--color-fg);
+  opacity: var(--opacity-muted);
+  padding: var(--space-3xl) var(--space-lg);
+  font-size: var(--text-small);
+  animation: breathe 3s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: var(--opacity-muted);
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: var(--opacity-subtle);
+  }
+}
+
+/* Tasks container */
+.tasks-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}

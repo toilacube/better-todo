@@ -1,7 +1,8 @@
-import { ArrowLeft } from 'lucide-react';
-import { HistoryEntry } from '../types';
-import { formatDate } from '../utils/dateHelpers';
-import { countTasks } from '../utils/taskHelpers';
+import { ArrowLeft } from "lucide-react";
+import { motion } from "framer-motion";
+import { HistoryEntry } from "../types";
+import { formatDate } from "../utils/dateHelpers";
+import { countTasks } from "../utils/taskHelpers";
 import {
   LineChart,
   Line,
@@ -15,8 +16,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-} from 'recharts';
-import { TaskItem } from './TaskItem';
+} from "recharts";
+import { TaskItem } from "./TaskItem";
 
 interface StatisticsProps {
   history: HistoryEntry[];
@@ -63,47 +64,62 @@ export const Statistics: React.FC<StatisticsProps> = ({ history, onBack }) => {
   });
 
   const pieData = [
-    { name: 'Hoàn thành', value: totalStats.completed },
-    { name: 'Chưa xong', value: totalStats.total - totalStats.completed },
+    { name: "Completed", value: totalStats.completed },
+    { name: "Pending", value: totalStats.total - totalStats.completed },
   ];
 
   // Calculate streaks
   const streaks = calculateStreaks(history);
 
-  const COLORS = ['#000000', '#9CA3AF'];
+  const COLORS = ["#000000", "#9CA3AF"];
 
   return (
-    <div className="statistics-page">
+    <motion.div
+      className="statistics-page"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="statistics-header">
-        <button onClick={onBack} className="back-button">
-          <ArrowLeft size={20} />
-          <span>Quay lại</span>
-        </button>
+        <motion.button
+          onClick={onBack}
+          className="back-button"
+          whileHover={{ opacity: 1, x: -4 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <ArrowLeft size={20} strokeWidth={1.5} />
+          <span>Back</span>
+        </motion.button>
       </div>
 
       <div className="statistics-content">
-        <h1 className="statistics-title">Thống kê</h1>
+        <h1 className="statistics-title">Statistics</h1>
 
         {/* Summary Cards */}
         <div className="summary-cards">
           <div className="summary-card">
-            <div className="summary-value">{totalStats.total.toLocaleString()}</div>
-            <div className="summary-label">Tổng task</div>
+            <div className="summary-value">
+              {totalStats.total.toLocaleString()}
+            </div>
+            <div className="summary-label">Total Tasks</div>
           </div>
           <div className="summary-card">
-            <div className="summary-value">{totalStats.completed.toLocaleString()}</div>
-            <div className="summary-label">Hoàn thành</div>
+            <div className="summary-value">
+              {totalStats.completed.toLocaleString()}
+            </div>
+            <div className="summary-label">Completed</div>
           </div>
           <div className="summary-card">
             <div className="summary-value">{completionRate}%</div>
-            <div className="summary-label">Tỷ lệ</div>
+            <div className="summary-label">Rate</div>
           </div>
         </div>
 
         {/* Trend Chart */}
         {trendData.length > 0 && (
           <div className="chart-section">
-            <h2 className="chart-title">Xu hướng hoàn thành</h2>
+            <h2 className="chart-title">Completion Trend</h2>
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={trendData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
@@ -115,7 +131,7 @@ export const Statistics: React.FC<StatisticsProps> = ({ history, onBack }) => {
                   dataKey="completed"
                   stroke="#000000"
                   strokeWidth={2}
-                  name="Hoàn thành"
+                  name="Completed"
                 />
                 <Line
                   type="monotone"
@@ -123,7 +139,7 @@ export const Statistics: React.FC<StatisticsProps> = ({ history, onBack }) => {
                   stroke="#9CA3AF"
                   strokeWidth={2}
                   strokeDasharray="5 5"
-                  name="Tổng"
+                  name="Total"
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -133,14 +149,14 @@ export const Statistics: React.FC<StatisticsProps> = ({ history, onBack }) => {
         {/* Rate Bar Chart */}
         {rateData.length > 0 && (
           <div className="chart-section">
-            <h2 className="chart-title">Tỷ lệ hoàn thành</h2>
+            <h2 className="chart-title">Completion Rate</h2>
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={rateData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                 <XAxis dataKey="day" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="rate" fill="#000000" name="Tỷ lệ %" />
+                <Bar dataKey="rate" fill="#000000" name="Rate %" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -149,7 +165,7 @@ export const Statistics: React.FC<StatisticsProps> = ({ history, onBack }) => {
         {/* Pie Chart and Streaks */}
         <div className="charts-row">
           <div className="chart-section">
-            <h2 className="chart-title">Phân bố</h2>
+            <h2 className="chart-title">Distribution</h2>
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
                 <Pie
@@ -163,7 +179,10 @@ export const Statistics: React.FC<StatisticsProps> = ({ history, onBack }) => {
                   dataKey="value"
                 >
                   {pieData.map((_entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -176,13 +195,13 @@ export const Statistics: React.FC<StatisticsProps> = ({ history, onBack }) => {
             <div className="streak-container">
               <div className="streak-item">
                 <div className="streak-icon">🔥</div>
-                <div className="streak-value">{streaks.current} ngày</div>
-                <div className="streak-label">Hiện tại</div>
+                <div className="streak-value">{streaks.current} days</div>
+                <div className="streak-label">Current</div>
               </div>
               <div className="streak-item">
                 <div className="streak-icon">⭐</div>
-                <div className="streak-value">{streaks.longest} ngày</div>
-                <div className="streak-label">Cao nhất</div>
+                <div className="streak-value">{streaks.longest} days</div>
+                <div className="streak-label">Best</div>
               </div>
             </div>
           </div>
@@ -190,7 +209,7 @@ export const Statistics: React.FC<StatisticsProps> = ({ history, onBack }) => {
 
         {/* History */}
         <div className="history-section">
-          <h2 className="chart-title">Lịch sử</h2>
+          <h2 className="chart-title">History</h2>
           {history.slice(0, 10).map((entry) => (
             <div key={entry.date} className="history-card">
               <div className="history-header">
@@ -215,7 +234,7 @@ export const Statistics: React.FC<StatisticsProps> = ({ history, onBack }) => {
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -225,7 +244,9 @@ const renderLabel = (entry: any) => {
 };
 
 // Calculate streaks
-const calculateStreaks = (history: HistoryEntry[]): { current: number; longest: number } => {
+const calculateStreaks = (
+  history: HistoryEntry[]
+): { current: number; longest: number } => {
   let current = 0;
   let longest = 0;
   let temp = 0;

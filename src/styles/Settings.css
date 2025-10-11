@@ -1,0 +1,194 @@
+/* Settings Modal Styles - Section 6.10 */
+.settings-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-fg);
+  opacity: 0.6;
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn var(--duration-fast) var(--ease-smooth);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.6;
+  }
+}
+
+.settings-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  background-color: var(--color-bg);
+  border: 1px solid rgba(0, 0, 0, var(--opacity-subtle));
+  border-radius: 12px;
+  max-width: var(--container-modal);
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  z-index: 1001;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% - 20px)) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-xl);
+  border-bottom: 1px solid rgba(0, 0, 0, var(--opacity-ghost));
+}
+
+.settings-title {
+  font-size: var(--text-body-large);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: var(--ls-wide);
+  font-family: var(--font-mono);
+}
+
+.settings-close-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-fg);
+  opacity: var(--opacity-subtle);
+  transition: opacity var(--duration-fast) var(--ease-smooth),
+    transform var(--duration-fast) var(--ease-smooth);
+  padding: var(--space-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.settings-close-button:hover {
+  opacity: var(--opacity-full);
+  transform: scale(1.1);
+}
+
+.settings-close-button:active {
+  transform: scale(0.95);
+}
+
+.settings-content {
+  padding: var(--space-xl);
+}
+
+.settings-item {
+  margin-bottom: var(--space-lg);
+}
+
+.settings-label {
+  display: block;
+  font-size: var(--text-small);
+  color: var(--color-fg);
+  opacity: var(--opacity-subtle);
+  margin-bottom: var(--space-sm);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-wide);
+  font-family: var(--font-mono);
+}
+
+.settings-input {
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, var(--opacity-ghost));
+  padding: var(--space-sm) 0;
+  font-size: var(--text-body);
+  color: var(--color-fg);
+  outline: none;
+  font-weight: 400;
+  font-family: var(--font-mono);
+  transition: border-bottom-color var(--duration-fast) var(--ease-smooth);
+}
+
+.settings-input:focus {
+  border-bottom-color: rgba(0, 0, 0, var(--opacity-subtle));
+}
+
+.settings-divider {
+  height: 1px;
+  background-color: var(--color-fg);
+  opacity: var(--opacity-ghost);
+  margin: var(--space-lg) 0;
+}
+
+.settings-toggle-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-md);
+}
+
+.settings-toggle-info {
+  flex: 1;
+}
+
+.settings-toggle-label {
+  font-size: var(--text-body);
+  color: var(--color-fg);
+  font-weight: 400;
+  font-family: var(--font-mono);
+}
+
+.settings-toggle-description {
+  font-size: var(--text-tiny);
+  color: var(--color-fg);
+  opacity: var(--opacity-subtle);
+  margin-top: var(--space-xs);
+  line-height: var(--lh-relaxed);
+  font-family: var(--font-mono);
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  position: relative;
+  width: 48px;
+  height: 24px;
+  background-color: var(--color-tertiary);
+  border: none;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-spring-soft);
+  flex-shrink: 0;
+}
+
+.toggle-switch.active {
+  background-color: var(--color-fg);
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background-color: var(--color-bg);
+  border-radius: 50%;
+  transition: transform var(--duration-fast) var(--ease-spring-soft);
+}
+
+.toggle-switch.active .toggle-thumb {
+  transform: translateX(24px);
+}

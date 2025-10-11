@@ -1,0 +1,249 @@
+/* Task Item Styles - Section 6.4 */
+.task-item {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-sm) 0;
+  border-left: 1px solid transparent;
+  transition: background-color var(--duration-normal) var(--ease-smooth),
+    transform var(--duration-normal) var(--ease-smooth);
+  border-radius: 4px;
+}
+
+.task-item:hover {
+  background-color: var(--color-subtle);
+  transform: translateY(-1px);
+}
+
+.task-item:hover .task-item-actions {
+  opacity: var(--opacity-full);
+}
+
+.task-item-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 0 var(--space-sm);
+}
+
+.task-item-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex: 1;
+  min-width: 0;
+}
+
+.task-expand-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-fg);
+  opacity: var(--opacity-muted);
+  transition: opacity var(--duration-fast) var(--ease-smooth),
+    transform var(--duration-fast) var(--ease-smooth);
+  padding: var(--space-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.task-expand-button:hover {
+  opacity: var(--opacity-full);
+}
+
+.task-expand-button.expanded {
+  transform: rotate(90deg);
+}
+
+/* Checkbox - Section 6.5 */
+.task-checkbox {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.checkbox-circle {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--color-fg);
+  border-radius: 50%;
+  transition: border-width var(--duration-instant) var(--ease-smooth),
+    background-color var(--duration-normal) var(--ease-sharp);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.task-checkbox:hover .checkbox-circle {
+  border-width: 3px;
+}
+
+.task-checkbox.completed .checkbox-circle {
+  background-color: var(--color-fg);
+  border-width: 0px;
+}
+
+.checkbox-circle::after {
+  content: "";
+  width: 8px;
+  height: 12px;
+  border: solid var(--color-bg);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform var(--duration-fast) var(--ease-spring-snappy);
+}
+
+.task-checkbox.completed .checkbox-circle::after {
+  transform: rotate(45deg) scale(1);
+}
+
+.task-text {
+  font-size: var(--text-body);
+  color: var(--color-fg);
+  flex: 1;
+  text-align: left;
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font-mono);
+  transition: opacity var(--duration-normal) var(--ease-smooth);
+}
+
+.task-text.completed {
+  text-decoration: line-through;
+  opacity: var(--opacity-muted);
+}
+
+.task-counter {
+  font-size: var(--text-small);
+  color: var(--color-secondary);
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.task-item-actions {
+  display: flex;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--ease-smooth);
+}
+
+.task-action-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-fg);
+  opacity: var(--opacity-muted);
+  transition: opacity var(--duration-fast) var(--ease-smooth),
+    transform var(--duration-fast) var(--ease-smooth);
+  padding: var(--space-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+}
+
+.task-action-button:hover {
+  opacity: var(--opacity-full);
+  transform: scale(1.1);
+}
+
+.task-action-button:active {
+  transform: scale(0.95);
+}
+
+/* Subtask input - Section 6.6 */
+.subtask-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+  padding-left: var(--space-xl);
+  height: 48px;
+  background-color: var(--color-subtle);
+  border-left: 2px solid var(--color-fg);
+  padding-right: var(--space-sm);
+  animation: slideDown var(--duration-normal) var(--ease-smooth);
+}
+
+.subtask-input-wrapper::before {
+  content: ">";
+  color: var(--color-fg);
+  font-size: var(--text-body);
+  opacity: var(--opacity-subtle);
+  margin-right: var(--space-xs);
+}
+
+@keyframes slideDown {
+  from {
+    height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    height: 48px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.subtask-input {
+  flex: 1;
+  background: none;
+  border: none;
+  font-size: var(--text-body);
+  color: var(--color-fg);
+  outline: none;
+  font-weight: 400;
+  font-family: var(--font-mono);
+}
+
+.subtask-input::placeholder {
+  color: var(--color-fg);
+  opacity: var(--opacity-muted);
+}
+
+.subtask-confirm-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-fg);
+  opacity: var(--opacity-muted);
+  transition: opacity var(--duration-fast) var(--ease-smooth),
+    transform var(--duration-fast) var(--ease-smooth);
+  padding: var(--space-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.subtask-confirm-button:hover {
+  opacity: var(--opacity-full);
+  transform: scale(1.1);
+}
+
+.subtask-confirm-button:active {
+  transform: scale(0.95);
+}
+
+/* Subtasks container */
+.subtasks-container {
+  margin-top: var(--space-sm);
+  padding-left: var(--space-xl);
+  border-left: 1px solid rgba(0, 0, 0, var(--opacity-ghost));
+}

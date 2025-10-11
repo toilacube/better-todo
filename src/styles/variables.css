@@ -1,0 +1,84 @@
+/* CSS Variables - Motion-First Minimalist Design */
+:root {
+  /* Colors - Light Mode */
+  --color-bg: #ffffff;
+  --color-fg: #000000;
+  --color-secondary: #6b7280;
+  --color-tertiary: #d1d5db;
+  --color-subtle: #f3f4f6;
+
+  /* Opacity Scale */
+  --opacity-invisible: 0;
+  --opacity-ghost: 0.1;
+  --opacity-muted: 0.3;
+  --opacity-subtle: 0.5;
+  --opacity-active: 0.7;
+  --opacity-full: 1;
+
+  /* Spacing - 8px base unit */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* Border Radius */
+  --radius-none: 0;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* Typography */
+  --font-mono: "JetBrains Mono", "Fira Code", "SF Mono", "Monaco",
+    "Cascadia Code", "Consolas", monospace;
+  --text-hero: 3rem;
+  --text-title: 2rem;
+  --text-heading: 1.5rem;
+  --text-body-large: 1.125rem;
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+  --text-tiny: 0.75rem;
+
+  /* Line Heights */
+  --lh-tight: 1.2;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.8;
+
+  /* Letter Spacing */
+  --ls-tight: -0.02em;
+  --ls-normal: 0;
+  --ls-wide: 0.05em;
+
+  /* Animation Durations */
+  --duration-instant: 100ms;
+  --duration-fast: 200ms;
+  --duration-normal: 300ms;
+  --duration-smooth: 400ms;
+  --duration-slow: 600ms;
+
+  /* Easing Functions */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-sharp: cubic-bezier(0.4, 0, 1, 1);
+  --ease-spring-soft: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-spring-snappy: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Container Widths */
+  --container-task: 960px;
+  --container-stats: 960px;
+  --container-modal: 480px;
+}
+
+[data-theme="dark"] {
+  /* Colors - Dark Mode */
+  --color-bg: #000000;
+  --color-fg: #ffffff;
+  --color-secondary: #9ca3af;
+  --color-tertiary: #374151;
+  --color-subtle: #1f2937;
+}

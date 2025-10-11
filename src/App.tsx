@@ -1,36 +1,38 @@
-import { useState, useEffect } from 'react';
-import { Header } from './components/Header';
-import { TaskInput } from './components/TaskInput';
-import { TaskItem } from './components/TaskItem';
-import { Settings } from './components/Settings';
-import { Statistics } from './components/Statistics';
-import { useTasks } from './hooks/useTasks';
-import { useHistory } from './hooks/useHistory';
-import { useSettings } from './hooks/useSettings';
-import { useDarkMode } from './hooks/useDarkMode';
-import { storage } from './store/storage';
-import { isNewDay, getTodayDateString } from './utils/dateHelpers';
-import { getIncompleteTasks } from './utils/taskHelpers';
-import { TabType } from './types';
-import './App.css';
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronsDown, ChevronsUp } from "lucide-react";
+import { Header } from "./components/Header";
+import { TaskInput } from "./components/TaskInput";
+import { TaskItem } from "./components/TaskItem";
+import { Settings } from "./components/Settings";
+import { Statistics } from "./components/Statistics";
+import { useTasks } from "./hooks/useTasks";
+import { useHistory } from "./hooks/useHistory";
+import { useSettings } from "./hooks/useSettings";
+import { useDarkMode } from "./hooks/useDarkMode";
+import { storage } from "./store/storage";
+import { isNewDay, getTodayDateString } from "./utils/dateHelpers";
+import { getIncompleteTasks } from "./utils/taskHelpers";
+import { TabType } from "./types";
+import "./App.css";
 
-type View = 'main' | 'statistics';
+type View = "main" | "statistics";
 
 function App() {
-  const [activeTab, setActiveTab] = useState<TabType>('daily');
-  const [view, setView] = useState<View>('main');
+  const [activeTab, setActiveTab] = useState<TabType>("daily");
+  const [view, setView] = useState<View>("main");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const { settings, updateSettings } = useSettings();
   const { addHistoryEntry, getAllHistoryEntries } = useHistory();
-  const dailyTasks = useTasks('daily');
-  const mustDoTasks = useTasks('mustDo');
+  const dailyTasks = useTasks("daily");
+  const mustDoTasks = useTasks("mustDo");
 
   // Apply dark mode
   useDarkMode(settings.darkMode);
 
   // Get current tasks based on active tab
-  const currentTasks = activeTab === 'daily' ? dailyTasks : mustDoTasks;
+  const currentTasks = activeTab === "daily" ? dailyTasks : mustDoTasks;
 
   // Check for day transition on mount and periodically
   useEffect(() => {
@@ -69,10 +71,12 @@ function App() {
 
   // Must-Do reminders
   useEffect(() => {
-    if (activeTab !== 'mustDo') return;
+    if (activeTab !== "mustDo") return;
 
     const checkReminders = () => {
-      const incompleteTasks = mustDoTasks.tasks.filter((task) => !task.completed);
+      const incompleteTasks = mustDoTasks.tasks.filter(
+        (task) => !task.completed
+      );
       if (incompleteTasks.length > 0) {
         alert(`Bạn có ${incompleteTasks.length} Must-Do task chưa hoàn thành!`);
       }
@@ -89,11 +93,11 @@ function App() {
     updateSettings({ darkMode: !settings.darkMode });
   };
 
-  if (view === 'statistics') {
+  if (view === "statistics") {
     return (
       <Statistics
         history={getAllHistoryEntries()}
-        onBack={() => setView('main')}
+        onBack={() => setView("main")}
       />
     );
   }
@@ -101,46 +105,104 @@ function App() {
   return (
     <div className="app">
       <Header
-        onStatsClick={() => setView('statistics')}
+        onStatsClick={() => setView("statistics")}
         onSettingsClick={() => setIsSettingsOpen(true)}
         onThemeToggle={handleThemeToggle}
         darkMode={settings.darkMode}
       />
 
-      <div className="tabs">
+      <motion.div
+        className="tabs"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+      >
         <button
-          onClick={() => setActiveTab('daily')}
-          className={`tab ${activeTab === 'daily' ? 'active' : ''}`}
+          onClick={() => setActiveTab("daily")}
+          className={`tab ${activeTab === "daily" ? "active" : ""}`}
         >
           Daily
         </button>
         <button
-          onClick={() => setActiveTab('mustDo')}
-          className={`tab ${activeTab === 'mustDo' ? 'active' : ''}`}
+          onClick={() => setActiveTab("mustDo")}
+          className={`tab ${activeTab === "mustDo" ? "active" : ""}`}
         >
           Must-Do
         </button>
-      </div>
+      </motion.div>
 
       <main className="main-content">
-        <TaskInput onAdd={currentTasks.addTask} />
-
-        <div className="tasks-container">
-          {currentTasks.tasks.length === 0 ? (
-            <div className="empty-state">Không có task nào</div>
-          ) : (
-            currentTasks.tasks.map((task) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                onToggle={currentTasks.toggleTask}
-                onDelete={currentTasks.removeTask}
-                onAddSubtask={currentTasks.addSubtaskToTask}
-                onToggleExpand={currentTasks.toggleExpansion}
-              />
-            ))
+        <div className="toolbar">
+          <TaskInput onAdd={currentTasks.addTask} />
+          {currentTasks.tasks.length > 0 && (
+            <div className="expand-collapse-buttons">
+              <motion.button
+                onClick={currentTasks.toggleExpandCollapse}
+                className="toolbar-button"
+                aria-label={
+                  currentTasks.allExpanded ? "Collapse all" : "Expand all"
+                }
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {currentTasks.allExpanded ? (
+                  <>
+                    <ChevronsUp size={18} strokeWidth={1.5} />
+                    <span>Collapse All</span>
+                  </>
+                ) : (
+                  <>
+                    <ChevronsDown size={18} strokeWidth={1.5} />
+                    <span>Expand All</span>
+                  </>
+                )}
+              </motion.button>
+            </div>
           )}
         </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            className="tasks-container"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            {currentTasks.tasks.length === 0 ? (
+              <motion.div
+                className="empty-state"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                NO TASKS YET
+                <br />
+                <span style={{ fontSize: "0.85em", opacity: 0.7 }}>
+                  Press Enter to add one
+                </span>
+              </motion.div>
+            ) : (
+              currentTasks.tasks.map((task, index) => (
+                <motion.div
+                  key={task.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05, duration: 0.3 }}
+                >
+                  <TaskItem
+                    task={task}
+                    onToggle={currentTasks.toggleTask}
+                    onDelete={currentTasks.removeTask}
+                    onAddSubtask={currentTasks.addSubtaskToTask}
+                    onToggleExpand={currentTasks.toggleExpansion}
+                  />
+                </motion.div>
+              ))
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       <Settings

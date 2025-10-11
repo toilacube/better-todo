@@ -1,13 +1,16 @@
-import { useState, useEffect } from 'react';
-import { Task, TabType } from '../types';
-import { storage } from '../store/storage';
+import { useState, useEffect } from "react";
+import { Task, TabType } from "../types";
+import { storage } from "../store/storage";
 import {
   createTask,
   toggleTaskCompletion,
   addSubtask,
   deleteTask,
   toggleTaskExpansion,
-} from '../utils/taskHelpers';
+  expandAllTasks,
+  collapseAllTasks,
+  areAllTasksExpanded,
+} from "../utils/taskHelpers";
 
 export const useTasks = (type: TabType) => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -15,13 +18,13 @@ export const useTasks = (type: TabType) => {
   // Load tasks from storage on mount
   useEffect(() => {
     const loadedTasks =
-      type === 'daily' ? storage.getDailyTasks() : storage.getMustDoTasks();
+      type === "daily" ? storage.getDailyTasks() : storage.getMustDoTasks();
     setTasks(loadedTasks);
   }, [type]);
 
   // Save tasks to storage whenever they change
   useEffect(() => {
-    if (type === 'daily') {
+    if (type === "daily") {
       storage.setDailyTasks(tasks);
     } else {
       storage.setMustDoTasks(tasks);
@@ -54,6 +57,24 @@ export const useTasks = (type: TabType) => {
     setTasks(newTasks);
   };
 
+  const expandAll = () => {
+    setTasks(expandAllTasks(tasks));
+  };
+
+  const collapseAll = () => {
+    setTasks(collapseAllTasks(tasks));
+  };
+
+  const toggleExpandCollapse = () => {
+    if (areAllTasksExpanded(tasks)) {
+      setTasks(collapseAllTasks(tasks));
+    } else {
+      setTasks(expandAllTasks(tasks));
+    }
+  };
+
+  const allExpanded = areAllTasksExpanded(tasks);
+
   return {
     tasks,
     addTask,
@@ -62,5 +83,9 @@ export const useTasks = (type: TabType) => {
     removeTask,
     toggleExpansion,
     updateTasks,
+    expandAll,
+    collapseAll,
+    toggleExpandCollapse,
+    allExpanded,
   };
 };

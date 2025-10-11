@@ -1,0 +1,51 @@
+/* Tabs Styles - Section 6.2 */
+.tabs {
+  display: flex;
+  gap: var(--space-2xl);
+  padding: 0 var(--space-xl);
+  position: relative;
+}
+
+.tab {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-md) 0;
+  font-size: var(--text-body-large);
+  color: var(--color-fg);
+  opacity: var(--opacity-muted);
+  transition: opacity var(--duration-normal) var(--ease-smooth);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: var(--ls-wide);
+  position: relative;
+  font-family: var(--font-mono);
+}
+
+.tab:hover {
+  opacity: var(--opacity-active);
+}
+
+.tab.active {
+  opacity: var(--opacity-full);
+}
+
+.tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: var(--color-fg);
+  animation: slideIn var(--duration-normal) var(--ease-smooth);
+}
+
+@keyframes slideIn {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface TaskInputProps {
   onAdd: (text: string) => void;
@@ -9,7 +10,7 @@ interface TaskInputProps {
 
 export const TaskInput: React.FC<TaskInputProps> = ({
   onAdd,
-  placeholder = 'Thêm task...',
+  placeholder = 'add new task',
   autoFocus = false,
 }) => {
   const [text, setText] = useState('');
@@ -23,7 +24,13 @@ export const TaskInput: React.FC<TaskInputProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="task-input">
+    <motion.form
+      onSubmit={handleSubmit}
+      className="task-input"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: 0.3 }}
+    >
       <input
         type="text"
         value={text}
@@ -32,9 +39,15 @@ export const TaskInput: React.FC<TaskInputProps> = ({
         autoFocus={autoFocus}
         className="task-input-field"
       />
-      <button type="submit" className="task-input-button" aria-label="Add task">
-        <Plus size={20} />
-      </button>
-    </form>
+      <motion.button
+        type="submit"
+        className="task-input-button"
+        aria-label="Add task"
+        whileHover={{ opacity: 1, rotate: 90 }}
+        whileTap={{ rotate: 90, scale: 0.9 }}
+      >
+        <Plus size={24} strokeWidth={1.5} />
+      </motion.button>
+    </motion.form>
   );
 };

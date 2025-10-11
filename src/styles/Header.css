@@ -1,0 +1,59 @@
+/* Header Styles - Section 6.1 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 80px;
+  padding: 0 var(--space-xl);
+  border-bottom: 1px solid rgba(0, 0, 0, var(--opacity-ghost));
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.header-title {
+  font-size: var(--text-title);
+  font-weight: 400;
+  letter-spacing: var(--ls-tight);
+}
+
+.header-date {
+  font-size: var(--text-sm);
+  color: var(--color-fg);
+  opacity: var(--opacity-subtle);
+  font-weight: 300;
+  letter-spacing: var(--ls-normal);
+}
+
+.header-actions {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.header-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: var(--opacity-subtle);
+  transition: opacity var(--duration-instant) var(--ease-smooth),
+    transform var(--duration-instant) var(--ease-smooth);
+  color: var(--color-fg);
+  padding: var(--space-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.header-button:hover {
+  opacity: var(--opacity-full);
+  transform: scale(1.1) rotate(5deg);
+}
+
+.header-button:active {
+  transform: scale(0.95);
+}
