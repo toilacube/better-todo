@@ -1,18 +1,19 @@
 // Storage wrapper using localStorage for now (can be replaced with Tauri store later)
-import { Task, TaskHistory, Settings } from '../types';
+import { Task, TaskHistory, Settings } from "../types";
 
 const STORAGE_KEYS = {
-  DAILY_TASKS: 'dailyTasks',
-  MUST_DO_TASKS: 'mustDoTasks',
-  TASK_HISTORY: 'taskHistory',
-  LAST_DATE: 'lastDate',
-  SETTINGS: 'settings',
+  DAILY_TASKS: "dailyTasks",
+  MUST_DO_TASKS: "mustDoTasks",
+  TASK_HISTORY: "taskHistory",
+  LAST_DATE: "lastDate",
+  SETTINGS: "settings",
 } as const;
 
 const DEFAULT_SETTINGS: Settings = {
   autoCarryOver: true,
   notifyInterval: 3,
   darkMode: false,
+  autoStart: false,
 };
 
 export const storage = {

@@ -19,13 +19,14 @@ export interface Settings {
   autoCarryOver: boolean;
   notifyInterval: number; // in hours
   darkMode: boolean;
+  autoStart: boolean;
 }
 
 export interface TaskHistory {
   [dateString: string]: HistoryEntry;
 }
 
-export type TabType = 'daily' | 'mustDo';
+export type TabType = "daily" | "mustDo";
 
 export interface AppState {
   dailyTasks: Task[];

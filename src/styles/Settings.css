@@ -192,3 +192,22 @@
 .toggle-switch.active .toggle-thumb {
   transform: translateX(24px);
 }
+
+.toggle-switch.loading {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toggle-switch.loading .toggle-thumb {
+  animation: toggleLoading 1s ease-in-out infinite;
+}
+
+@keyframes toggleLoading {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.8);
+  }
+}
