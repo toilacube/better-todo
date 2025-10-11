@@ -66,6 +66,19 @@ body {
   flex: 1;
 }
 
+/* Must-Do Description */
+.must-do-description {
+  background: var(--color-subtle);
+  border: 1px solid var(--color-tertiary);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+  color: var(--color-secondary);
+  font-size: 0.9em;
+  line-height: var(--lh-relaxed);
+  text-align: center;
+}
+
 /* Toolbar */
 .toolbar {
   display: flex;
@@ -106,11 +119,11 @@ body {
 }
 
 /* Dark mode adjustments */
-[data-theme='dark'] .toolbar-button {
+[data-theme="dark"] .toolbar-button {
   border-color: var(--color-border);
 }
 
-[data-theme='dark'] .toolbar-button:hover {
+[data-theme="dark"] .toolbar-button:hover {
   background: var(--color-bg-hover);
   border-color: var(--color-fg-muted);
 }

@@ -161,6 +161,20 @@ function App() {
           )}
         </div>
 
+        {activeTab === "mustDo" && (
+          <motion.div
+            className="must-do-description"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+          >
+            This is for must-do daily task list, the app will notify you each{" "}
+            {settings.notifyInterval} hour
+            {settings.notifyInterval > 1 ? "s" : ""} until you completed all
+            tasks in must-do.
+          </motion.div>
+        )}
+
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
