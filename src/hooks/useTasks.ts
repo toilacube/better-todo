@@ -1,0 +1,66 @@
+import { useState, useEffect } from 'react';
+import { Task, TabType } from '../types';
+import { storage } from '../store/storage';
+import {
+  createTask,
+  toggleTaskCompletion,
+  addSubtask,
+  deleteTask,
+  toggleTaskExpansion,
+} from '../utils/taskHelpers';
+
+export const useTasks = (type: TabType) => {
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  // Load tasks from storage on mount
+  useEffect(() => {
+    const loadedTasks =
+      type === 'daily' ? storage.getDailyTasks() : storage.getMustDoTasks();
+    setTasks(loadedTasks);
+  }, [type]);
+
+  // Save tasks to storage whenever they change
+  useEffect(() => {
+    if (type === 'daily') {
+      storage.setDailyTasks(tasks);
+    } else {
+      storage.setMustDoTasks(tasks);
+    }
+  }, [tasks, type]);
+
+  const addTask = (text: string) => {
+    if (!text.trim()) return;
+    setTasks([...tasks, createTask(text)]);
+  };
+
+  const toggleTask = (taskId: number) => {
+    setTasks(toggleTaskCompletion(tasks, taskId));
+  };
+
+  const addSubtaskToTask = (parentId: number, text: string) => {
+    if (!text.trim()) return;
+    setTasks(addSubtask(tasks, parentId, text));
+  };
+
+  const removeTask = (taskId: number) => {
+    setTasks(deleteTask(tasks, taskId));
+  };
+
+  const toggleExpansion = (taskId: number) => {
+    setTasks(toggleTaskExpansion(tasks, taskId));
+  };
+
+  const updateTasks = (newTasks: Task[]) => {
+    setTasks(newTasks);
+  };
+
+  return {
+    tasks,
+    addTask,
+    toggleTask,
+    addSubtaskToTask,
+    removeTask,
+    toggleExpansion,
+    updateTasks,
+  };
+};
