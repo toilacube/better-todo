@@ -17,18 +17,26 @@ export const useTasks = (type: TabType) => {
 
   // Load tasks from storage on mount
   useEffect(() => {
-    const loadedTasks =
-      type === "today" ? storage.getTodayTasks() : storage.getMustDoTasks();
-    setTasks(loadedTasks);
+    const loadTasks = async () => {
+      const loadedTasks =
+        type === "today"
+          ? await storage.getTodayTasks()
+          : await storage.getMustDoTasks();
+      setTasks(loadedTasks);
+    };
+    loadTasks();
   }, [type]);
 
   // Save tasks to storage whenever they change
   useEffect(() => {
-    if (type === "today") {
-      storage.setTodayTasks(tasks);
-    } else {
-      storage.setMustDoTasks(tasks);
-    }
+    const saveTasks = async () => {
+      if (type === "today") {
+        await storage.setTodayTasks(tasks);
+      } else {
+        await storage.setMustDoTasks(tasks);
+      }
+    };
+    saveTasks();
   }, [tasks, type]);
 
   const addTask = (text: string) => {

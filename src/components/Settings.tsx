@@ -7,7 +7,7 @@ interface SettingsProps {
   isOpen: boolean;
   settings: SettingsType;
   onClose: () => void;
-  onUpdate: (settings: Partial<SettingsType>) => void;
+  onUpdate: (settings: Partial<SettingsType>) => Promise<void>;
 }
 
 export const Settings: React.FC<SettingsProps> = ({

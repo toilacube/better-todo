@@ -13,7 +13,7 @@ export const useSettings = () => {
 
   useEffect(() => {
     const loadSettings = async () => {
-      const loadedSettings = storage.getSettings();
+      const loadedSettings = await storage.getSettings();
 
       // Sync autostart setting with actual system state
       try {
@@ -26,7 +26,7 @@ export const useSettings = () => {
 
         // Update storage if there's a mismatch
         if (loadedSettings.autoStart !== actualAutostartState) {
-          storage.setSettings(updatedSettings);
+          await storage.setSettings(updatedSettings);
         }
       } catch (error) {
         console.error("Failed to check autostart state:", error);
@@ -37,10 +37,10 @@ export const useSettings = () => {
     loadSettings();
   }, []);
 
-  const updateSettings = (newSettings: Partial<Settings>) => {
+  const updateSettings = async (newSettings: Partial<Settings>) => {
     const updated = { ...settings, ...newSettings };
     setSettings(updated);
-    storage.setSettings(updated);
+    await storage.setSettings(updated);
   };
 
   return {

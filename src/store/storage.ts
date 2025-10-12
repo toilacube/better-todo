@@ -1,4 +1,5 @@
-// Storage wrapper using localStorage for now (can be replaced with Tauri store later)
+// Storage wrapper using Tauri Store plugin
+import { Store } from "@tauri-apps/plugin-store";
 import { Task, TaskHistory, Settings } from "../types";
 
 const STORAGE_KEYS = {
@@ -16,65 +17,79 @@ const DEFAULT_SETTINGS: Settings = {
   autoStart: false,
 };
 
+// Singleton store instance
+let storeInstance: Store | null = null;
+
+const getStore = async (): Promise<Store> => {
+  if (!storeInstance) {
+    storeInstance = await Store.load("store.json");
+    // Store will auto-save by default
+  }
+  return storeInstance;
+};
+
 export const storage = {
   // Generic get/set with JSON parsing
-  get<T>(key: string, defaultValue: T): T {
+  async get<T>(key: string, defaultValue: T): Promise<T> {
     try {
-      const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : defaultValue;
+      const store = await getStore();
+      const item = await store.get<T>(key);
+      return item !== null && item !== undefined ? item : defaultValue;
     } catch (error) {
       console.error(`Error reading ${key} from storage:`, error);
       return defaultValue;
     }
   },
 
-  set<T>(key: string, value: T): void {
+  async set<T>(key: string, value: T): Promise<void> {
     try {
-      localStorage.setItem(key, JSON.stringify(value));
+      const store = await getStore();
+      await store.set(key, value);
+      await store.save(); // Explicitly save changes
     } catch (error) {
       console.error(`Error writing ${key} to storage:`, error);
     }
   },
 
   // Specific getters
-  getTodayTasks(): Task[] {
+  async getTodayTasks(): Promise<Task[]> {
     return this.get<Task[]>(STORAGE_KEYS.TODAY_TASKS, []);
   },
 
-  getMustDoTasks(): Task[] {
+  async getMustDoTasks(): Promise<Task[]> {
     return this.get<Task[]>(STORAGE_KEYS.MUST_DO_TASKS, []);
   },
 
-  getTaskHistory(): TaskHistory {
+  async getTaskHistory(): Promise<TaskHistory> {
     return this.get<TaskHistory>(STORAGE_KEYS.TASK_HISTORY, {});
   },
 
-  getLastDate(): string {
+  async getLastDate(): Promise<string> {
     return this.get<string>(STORAGE_KEYS.LAST_DATE, new Date().toDateString());
   },
 
-  getSettings(): Settings {
+  async getSettings(): Promise<Settings> {
     return this.get<Settings>(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS);
   },
 
   // Specific setters
-  setTodayTasks(tasks: Task[]): void {
-    this.set(STORAGE_KEYS.TODAY_TASKS, tasks);
+  async setTodayTasks(tasks: Task[]): Promise<void> {
+    await this.set(STORAGE_KEYS.TODAY_TASKS, tasks);
   },
 
-  setMustDoTasks(tasks: Task[]): void {
-    this.set(STORAGE_KEYS.MUST_DO_TASKS, tasks);
+  async setMustDoTasks(tasks: Task[]): Promise<void> {
+    await this.set(STORAGE_KEYS.MUST_DO_TASKS, tasks);
   },
 
-  setTaskHistory(history: TaskHistory): void {
-    this.set(STORAGE_KEYS.TASK_HISTORY, history);
+  async setTaskHistory(history: TaskHistory): Promise<void> {
+    await this.set(STORAGE_KEYS.TASK_HISTORY, history);
   },
 
-  setLastDate(date: string): void {
-    this.set(STORAGE_KEYS.LAST_DATE, date);
+  async setLastDate(date: string): Promise<void> {
+    await this.set(STORAGE_KEYS.LAST_DATE, date);
   },
 
-  setSettings(settings: Settings): void {
-    this.set(STORAGE_KEYS.SETTINGS, settings);
+  async setSettings(settings: Settings): Promise<void> {
+    await this.set(STORAGE_KEYS.SETTINGS, settings);
   },
 };

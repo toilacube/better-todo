@@ -7,11 +7,14 @@ export const useHistory = () => {
   const [history, setHistory] = useState<TaskHistory>({});
 
   useEffect(() => {
-    const loadedHistory = storage.getTaskHistory();
-    setHistory(loadedHistory);
+    const loadHistory = async () => {
+      const loadedHistory = await storage.getTaskHistory();
+      setHistory(loadedHistory);
+    };
+    loadHistory();
   }, []);
 
-  const addHistoryEntry = (date: string, tasks: Task[]) => {
+  const addHistoryEntry = async (date: string, tasks: Task[]) => {
     const { total, completed } = countRootTasks(tasks);
 
     const newHistory = {
@@ -25,7 +28,7 @@ export const useHistory = () => {
     };
 
     setHistory(newHistory);
-    storage.setTaskHistory(newHistory);
+    await storage.setTaskHistory(newHistory);
   };
 
   const getHistoryEntries = (limit: number = 10) => {

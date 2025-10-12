@@ -36,28 +36,28 @@ function App() {
 
   // Check for day transition on mount and periodically
   useEffect(() => {
-    const checkDayTransition = () => {
-      const lastDate = storage.getLastDate();
+    const checkDayTransition = async () => {
+      const lastDate = await storage.getLastDate();
 
       if (isNewDay(lastDate)) {
         // Save yesterday's tasks to history
-        const yesterdayTodayTasks = storage.getTodayTasks();
+        const yesterdayTodayTasks = await storage.getTodayTasks();
         if (yesterdayTodayTasks.length > 0) {
-          addHistoryEntry(lastDate, yesterdayTodayTasks);
+          await addHistoryEntry(lastDate, yesterdayTodayTasks);
         }
 
         // Handle carry-over or clear
         if (settings.autoCarryOver) {
           const incompleteTasks = getIncompleteTasks(yesterdayTodayTasks);
-          storage.setTodayTasks(incompleteTasks);
+          await storage.setTodayTasks(incompleteTasks);
           todayTasks.updateTasks(incompleteTasks);
         } else {
-          storage.setTodayTasks([]);
+          await storage.setTodayTasks([]);
           todayTasks.updateTasks([]);
         }
 
         // Update last date
-        storage.setLastDate(getTodayDateString());
+        await storage.setLastDate(getTodayDateString());
       }
     };
 
@@ -67,7 +67,7 @@ function App() {
     const interval = setInterval(checkDayTransition, 60000);
 
     return () => clearInterval(interval);
-  }, [settings.autoCarryOver]);
+  }, [settings.autoCarryOver, addHistoryEntry, todayTasks]);
 
   // Must-Do reminders
   useEffect(() => {
@@ -89,8 +89,8 @@ function App() {
     return () => clearInterval(interval);
   }, [activeTab, mustDoTasks.tasks, settings.notifyInterval]);
 
-  const handleThemeToggle = () => {
-    updateSettings({ darkMode: !settings.darkMode });
+  const handleThemeToggle = async () => {
+    await updateSettings({ darkMode: !settings.darkMode });
   };
 
   if (view === "statistics") {
