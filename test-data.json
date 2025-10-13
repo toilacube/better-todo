@@ -1,0 +1,763 @@
+{
+  "todayTasks": [
+    {
+      "id": 1,
+      "text": "Review project documentation",
+      "completed": true,
+      "subtasks": [
+        {
+          "id": 2,
+          "text": "Check API endpoints",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 3,
+          "text": "Update deployment guide",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        }
+      ],
+      "expanded": true
+    },
+    {
+      "id": 4,
+      "text": "Prepare weekly presentation",
+      "completed": false,
+      "subtasks": [
+        {
+          "id": 5,
+          "text": "Create slides",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 6,
+          "text": "Practice demo",
+          "completed": false,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 7,
+          "text": "Prepare Q&A notes",
+          "completed": false,
+          "subtasks": [],
+          "expanded": false
+        }
+      ],
+      "expanded": true
+    },
+    {
+      "id": 8,
+      "text": "Call dentist for appointment",
+      "completed": false,
+      "subtasks": [],
+      "expanded": false
+    },
+    {
+      "id": 9,
+      "text": "Grocery shopping",
+      "completed": false,
+      "subtasks": [],
+      "expanded": false
+    }
+  ],
+  "mustDoTasks": [
+    {
+      "id": 101,
+      "text": "Submit quarterly report by Friday",
+      "completed": false,
+      "subtasks": [
+        {
+          "id": 102,
+          "text": "Gather financial data",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 103,
+          "text": "Write executive summary",
+          "completed": false,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 104,
+          "text": "Create charts and visualizations",
+          "completed": false,
+          "subtasks": [],
+          "expanded": false
+        }
+      ],
+      "expanded": true
+    },
+    {
+      "id": 105,
+      "text": "Fix critical production bug",
+      "completed": false,
+      "subtasks": [],
+      "expanded": false
+    },
+    {
+      "id": 106,
+      "text": "Renew car insurance",
+      "completed": false,
+      "subtasks": [],
+      "expanded": false
+    }
+  ],
+  "taskHistory": {
+    "Mon Oct 06 2025": {
+      "date": "Mon Oct 06 2025",
+      "tasks": [
+        {
+          "id": 201,
+          "text": "Morning team standup meeting",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 202,
+          "text": "Code review for authentication feature",
+          "completed": true,
+          "subtasks": [
+            {
+              "id": 203,
+              "text": "Review JWT implementation",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 204,
+              "text": "Test password reset flow",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 205,
+              "text": "Check security vulnerabilities",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "id": 206,
+          "text": "Update npm dependencies",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 207,
+          "text": "Fix responsive layout issues",
+          "completed": true,
+          "subtasks": [
+            {
+              "id": 208,
+              "text": "Fix mobile menu",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 209,
+              "text": "Adjust tablet breakpoints",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "id": 210,
+          "text": "Write unit tests for payment module",
+          "completed": false,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 211,
+          "text": "Respond to client feedback",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 212,
+          "text": "Lunch meeting with product team",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        }
+      ],
+      "completed": 6,
+      "total": 7
+    },
+    "Tue Oct 07 2025": {
+      "date": "Tue Oct 07 2025",
+      "tasks": [
+        {
+          "id": 220,
+          "text": "Implement user profile dashboard",
+          "completed": true,
+          "subtasks": [
+            {
+              "id": 221,
+              "text": "Design database schema for user preferences",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 222,
+              "text": "Create REST API endpoints",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 223,
+              "text": "Build React components",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 224,
+              "text": "Add profile picture upload",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "id": 225,
+          "text": "Morning standup",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 226,
+          "text": "Respond to urgent client emails",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 227,
+          "text": "Review Q4 budget proposal",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 228,
+          "text": "Evening gym session",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 229,
+          "text": "Read article on microservices architecture",
+          "completed": false,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 230,
+          "text": "Prepare demo for stakeholder meeting",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 231,
+          "text": "Update project documentation",
+          "completed": false,
+          "subtasks": [],
+          "expanded": false
+        }
+      ],
+      "completed": 6,
+      "total": 8
+    },
+    "Wed Oct 08 2025": {
+      "date": "Wed Oct 08 2025",
+      "tasks": [
+        {
+          "id": 240,
+          "text": "Debug and fix performance bottlenecks",
+          "completed": true,
+          "subtasks": [
+            {
+              "id": 241,
+              "text": "Profile application with DevTools",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 242,
+              "text": "Optimize slow database queries",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 243,
+              "text": "Implement Redis caching layer",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 244,
+              "text": "Add lazy loading for images",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "id": 245,
+          "text": "Team standup meeting",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 246,
+          "text": "Prepare sprint planning agenda",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 247,
+          "text": "Interview senior developer candidate",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 248,
+          "text": "Update API documentation",
+          "completed": false,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 249,
+          "text": "Pay monthly utility bills",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 250,
+          "text": "Review security audit findings",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        }
+      ],
+      "completed": 6,
+      "total": 7
+    },
+    "Thu Oct 09 2025": {
+      "date": "Thu Oct 09 2025",
+      "tasks": [
+        {
+          "id": 260,
+          "text": "Refactor authentication and authorization module",
+          "completed": true,
+          "subtasks": [
+            {
+              "id": 261,
+              "text": "Extract auth logic into separate service",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 262,
+              "text": "Add role-based access control",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 263,
+              "text": "Write integration tests",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "id": 264,
+          "text": "Sprint planning meeting (2 hours)",
+          "completed": true,
+          "subtasks": [
+            {
+              "id": 265,
+              "text": "Review backlog items",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 266,
+              "text": "Estimate user stories with team",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 267,
+              "text": "Assign tasks and set sprint goals",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "id": 268,
+          "text": "Setup GitHub Actions CI/CD pipeline",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 269,
+          "text": "Coffee chat with engineering mentor",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 270,
+          "text": "Research React Server Components",
+          "completed": false,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 271,
+          "text": "Organize desk and clean workspace",
+          "completed": false,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 272,
+          "text": "Review pull requests from team",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        }
+      ],
+      "completed": 5,
+      "total": 7
+    },
+    "Fri Oct 10 2025": {
+      "date": "Fri Oct 10 2025",
+      "tasks": [
+        {
+          "id": 280,
+          "text": "Write technical blog post about performance optimization",
+          "completed": true,
+          "subtasks": [
+            {
+              "id": 281,
+              "text": "Draft outline and structure",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 282,
+              "text": "Write main content sections",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 283,
+              "text": "Add code examples and screenshots",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 284,
+              "text": "Proofread and edit",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 285,
+              "text": "Publish to Medium",
+              "completed": false,
+              "subtasks": [],
+              "expanded": false
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "id": 286,
+          "text": "Team standup and weekly review",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 287,
+          "text": "Attend AWS re:Invent webinar on serverless",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 288,
+          "text": "Review team's pull requests",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 289,
+          "text": "Backup project files to cloud storage",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 290,
+          "text": "Team happy hour (virtual)",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        }
+      ],
+      "completed": 5,
+      "total": 6
+    },
+    "Sat Oct 11 2025": {
+      "date": "Sat Oct 11 2025",
+      "tasks": [
+        {
+          "id": 300,
+          "text": "Morning workout at gym",
+          "completed": true,
+          "subtasks": [
+            {
+              "id": 301,
+              "text": "Cardio - 30 min treadmill",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 302,
+              "text": "Upper body strength training",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 303,
+              "text": "Stretching and cooldown",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "id": 304,
+          "text": "Meal prep for upcoming week",
+          "completed": true,
+          "subtasks": [
+            {
+              "id": 305,
+              "text": "Create meal plan",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 306,
+              "text": "Grocery shopping at Whole Foods",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 307,
+              "text": "Cook and portion lunch meals",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 308,
+              "text": "Prep healthy snacks",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "id": 309,
+          "text": "Deep clean apartment",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 310,
+          "text": "Video call with parents",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 311,
+          "text": "Plan and organize next week's goals",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 312,
+          "text": "Watch Udemy course on Docker",
+          "completed": false,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 313,
+          "text": "Work on personal side project",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        }
+      ],
+      "completed": 6,
+      "total": 7
+    },
+    "Sun Oct 12 2025": {
+      "date": "Sun Oct 12 2025",
+      "tasks": [
+        {
+          "id": 320,
+          "text": "Work on personal portfolio website",
+          "completed": true,
+          "subtasks": [
+            {
+              "id": 321,
+              "text": "Fix navigation menu bug on mobile",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 322,
+              "text": "Implement dark mode toggle",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 323,
+              "text": "Add new projects to portfolio",
+              "completed": true,
+              "subtasks": [],
+              "expanded": false
+            },
+            {
+              "id": 324,
+              "text": "Deploy updates to Vercel",
+              "completed": false,
+              "subtasks": [],
+              "expanded": false
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "id": 325,
+          "text": "Organize and backup digital photos",
+          "completed": false,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 326,
+          "text": "Read chapter 5 of 'Clean Architecture'",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 327,
+          "text": "Afternoon walk in Central Park",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 328,
+          "text": "Prepare for Monday's meetings",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        },
+        {
+          "id": 329,
+          "text": "Relax and watch documentary",
+          "completed": true,
+          "subtasks": [],
+          "expanded": false
+        }
+      ],
+      "completed": 5,
+      "total": 6
+    }
+  },
+  "lastDate": "Sun Oct 13 2025",
+  "settings": {
+    "autoCarryOver": true,
+    "notifyInterval": 2,
+    "darkMode": true,
+    "autoStart": true
+  }
+}

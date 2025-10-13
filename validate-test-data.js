@@ -1,5 +1,5 @@
-// Simple test to verify the JSON validation works correctly
-// This simulates the validation logic from the Debug component
+// Test script to validate the test-data.json
+import fs from 'fs';
 
 const validateTask = (task) => {
   return (
@@ -102,92 +102,45 @@ const validateStoreData = (data) => {
   return errors;
 };
 
-// Test cases
-console.log("=== Testing JSON Validation ===\n");
+console.log("=== Validating test-data.json ===\n");
 
-// Test 1: Valid data
-const validData = {
-  todayTasks: [
-    {
-      id: 1,
-      text: "Test task",
-      completed: false,
-      subtasks: [],
-      expanded: false,
-    },
-  ],
-  mustDoTasks: [],
-  taskHistory: {},
-  lastDate: "2025-10-13",
-  settings: {
-    autoCarryOver: true,
-    notifyInterval: 3,
-    darkMode: false,
-    autoStart: false,
-  },
-};
+try {
+  // Read the JSON file
+  const jsonContent = fs.readFileSync('./test-data.json', 'utf8');
+  console.log("✅ JSON file read successfully");
 
-console.log("Test 1 - Valid data:");
-const errors1 = validateStoreData(validData);
-console.log(errors1.length === 0 ? "✅ PASSED" : "❌ FAILED");
-if (errors1.length > 0) console.log("Errors:", errors1);
+  // Parse JSON
+  let data;
+  try {
+    data = JSON.parse(jsonContent);
+    console.log("✅ JSON parsed successfully");
+  } catch (parseError) {
+    console.log("❌ JSON Parse Error:", parseError.message);
+    process.exit(1);
+  }
 
-// Test 2: Missing required field
-const invalidData1 = {
-  todayTasks: [],
-  mustDoTasks: [],
-  // Missing taskHistory, lastDate, settings
-};
+  // Validate structure
+  const errors = validateStoreData(data);
 
-console.log("\nTest 2 - Missing required fields:");
-const errors2 = validateStoreData(invalidData1);
-console.log(errors2.length > 0 ? "✅ PASSED" : "❌ FAILED");
-console.log("Errors:", errors2);
+  if (errors.length === 0) {
+    console.log("✅ Data validation passed!");
+    console.log("\nData Summary:");
+    console.log(`- Today Tasks: ${data.todayTasks.length}`);
+    console.log(`- Must-Do Tasks: ${data.mustDoTasks.length}`);
+    console.log(`- History Entries: ${Object.keys(data.taskHistory).length}`);
+    console.log(`- Last Date: ${data.lastDate}`);
+    console.log(`- Settings: ${JSON.stringify(data.settings, null, 2)}`);
+  } else {
+    console.log("❌ Data validation failed!");
+    console.log("\nValidation Errors:");
+    errors.forEach((error, index) => {
+      console.log(`  ${index + 1}. ${error}`);
+    });
+    process.exit(1);
+  }
+} catch (error) {
+  console.log("❌ Error:", error.message);
+  process.exit(1);
+}
 
-// Test 3: Invalid task structure
-const invalidData2 = {
-  todayTasks: [
-    {
-      id: "1", // should be number
-      text: "Test",
-      completed: false,
-      subtasks: [],
-      expanded: false,
-    },
-  ],
-  mustDoTasks: [],
-  taskHistory: {},
-  lastDate: "2025-10-13",
-  settings: {
-    autoCarryOver: true,
-    notifyInterval: 3,
-    darkMode: false,
-    autoStart: false,
-  },
-};
-
-console.log("\nTest 3 - Invalid task structure:");
-const errors3 = validateStoreData(invalidData2);
-console.log(errors3.length > 0 ? "✅ PASSED" : "❌ FAILED");
-console.log("Errors:", errors3);
-
-// Test 4: Invalid settings
-const invalidData3 = {
-  todayTasks: [],
-  mustDoTasks: [],
-  taskHistory: {},
-  lastDate: "2025-10-13",
-  settings: {
-    autoCarryOver: "true", // should be boolean
-    notifyInterval: 3,
-    darkMode: false,
-    autoStart: false,
-  },
-};
-
-console.log("\nTest 4 - Invalid settings:");
-const errors4 = validateStoreData(invalidData3);
-console.log(errors4.length > 0 ? "✅ PASSED" : "❌ FAILED");
-console.log("Errors:", errors4);
-
-console.log("\n=== All tests completed ===");
+console.log("\n=== Validation Complete ===");
