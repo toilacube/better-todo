@@ -27,6 +27,11 @@ export function Debug({ onBack }: DebugProps = {}) {
     settings: true,
     general: true,
   });
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedJson, setEditedJson] = useState<string>("");
+  const [jsonError, setJsonError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     loadStoreData();
@@ -71,6 +76,171 @@ export function Debug({ onBack }: DebugProps = {}) {
 
   const formatJson = (data: any) => {
     return JSON.stringify(data, null, 2);
+  };
+
+  const validateStoreData = (data: any): string[] => {
+    const errors: string[] = [];
+
+    if (!data || typeof data !== "object") {
+      errors.push("Data must be a valid object");
+      return errors;
+    }
+
+    // Check required fields
+    const requiredFields = [
+      "todayTasks",
+      "mustDoTasks",
+      "taskHistory",
+      "lastDate",
+      "settings",
+    ];
+    requiredFields.forEach((field) => {
+      if (!(field in data)) {
+        errors.push(`Missing required field: ${field}`);
+      }
+    });
+
+    // Validate todayTasks
+    if (data.todayTasks && !Array.isArray(data.todayTasks)) {
+      errors.push("todayTasks must be an array");
+    } else if (data.todayTasks) {
+      data.todayTasks.forEach((task: any, index: number) => {
+        if (!validateTask(task)) {
+          errors.push(`Invalid task at todayTasks[${index}]`);
+        }
+      });
+    }
+
+    // Validate mustDoTasks
+    if (data.mustDoTasks && !Array.isArray(data.mustDoTasks)) {
+      errors.push("mustDoTasks must be an array");
+    } else if (data.mustDoTasks) {
+      data.mustDoTasks.forEach((task: any, index: number) => {
+        if (!validateTask(task)) {
+          errors.push(`Invalid task at mustDoTasks[${index}]`);
+        }
+      });
+    }
+
+    // Validate taskHistory
+    if (data.taskHistory && typeof data.taskHistory !== "object") {
+      errors.push("taskHistory must be an object");
+    }
+
+    // Validate lastDate
+    if (data.lastDate && typeof data.lastDate !== "string") {
+      errors.push("lastDate must be a string");
+    }
+
+    // Validate settings
+    if (data.settings) {
+      if (typeof data.settings !== "object") {
+        errors.push("settings must be an object");
+      } else {
+        const settingsFields = [
+          "autoCarryOver",
+          "notifyInterval",
+          "darkMode",
+          "autoStart",
+        ];
+        settingsFields.forEach((field) => {
+          if (!(field in data.settings)) {
+            errors.push(`Missing required settings field: ${field}`);
+          }
+        });
+
+        if (typeof data.settings.autoCarryOver !== "boolean") {
+          errors.push("settings.autoCarryOver must be a boolean");
+        }
+        if (typeof data.settings.notifyInterval !== "number") {
+          errors.push("settings.notifyInterval must be a number");
+        }
+        if (typeof data.settings.darkMode !== "boolean") {
+          errors.push("settings.darkMode must be a boolean");
+        }
+        if (typeof data.settings.autoStart !== "boolean") {
+          errors.push("settings.autoStart must be a boolean");
+        }
+      }
+    }
+
+    return errors;
+  };
+
+  const validateTask = (task: any): boolean => {
+    return (
+      task &&
+      typeof task === "object" &&
+      typeof task.id === "number" &&
+      typeof task.text === "string" &&
+      typeof task.completed === "boolean" &&
+      Array.isArray(task.subtasks) &&
+      typeof task.expanded === "boolean"
+    );
+  };
+
+  const startEditing = () => {
+    if (storeData) {
+      setEditedJson(formatJson(storeData));
+      setIsEditing(true);
+      setJsonError(null);
+      setValidationErrors([]);
+    }
+  };
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setEditedJson("");
+    setJsonError(null);
+    setValidationErrors([]);
+  };
+
+  const saveJson = async () => {
+    try {
+      setSaving(true);
+      setJsonError(null);
+      setValidationErrors([]);
+
+      // Parse JSON
+      let parsedData;
+      try {
+        parsedData = JSON.parse(editedJson);
+      } catch (err) {
+        setJsonError(
+          `Invalid JSON: ${err instanceof Error ? err.message : "Parse error"}`
+        );
+        return;
+      }
+
+      // Validate data structure
+      const errors = validateStoreData(parsedData);
+      if (errors.length > 0) {
+        setValidationErrors(errors);
+        return;
+      }
+
+      // Save to storage
+      await Promise.all([
+        storage.setTodayTasks(parsedData.todayTasks),
+        storage.setMustDoTasks(parsedData.mustDoTasks),
+        storage.setTaskHistory(parsedData.taskHistory),
+        storage.setLastDate(parsedData.lastDate),
+        storage.setSettings(parsedData.settings),
+      ]);
+
+      // Reload data and exit editing mode
+      await loadStoreData();
+      setIsEditing(false);
+      setEditedJson("");
+    } catch (err) {
+      setJsonError(
+        `Failed to save: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }`
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   const renderTask = (task: Task, level = 0) => {
@@ -350,16 +520,75 @@ export function Debug({ onBack }: DebugProps = {}) {
         )}
       </div>
 
-      {/* Raw JSON Data */}
-      <div className="debug-section">
-        <div className="debug-section-header">
-          <h3>Raw JSON Data</h3>
+      {/* JSON Editor */}
+      <div className="debug-section debug-json-section">
+        <div className="debug-section-header debug-json-header">
+          <h3>JSON Editor {isEditing ? "(Editing)" : "(View Mode)"}</h3>
+          <div className="debug-json-controls">
+            {!isEditing ? (
+              <button
+                onClick={startEditing}
+                className="debug-edit-btn"
+                style={{
+                  backgroundColor: "#007bff",
+                  color: "white",
+                  padding: "10px 20px",
+                }}
+              >
+                Edit JSON
+              </button>
+            ) : (
+              <div className="debug-edit-controls">
+                <button
+                  onClick={saveJson}
+                  disabled={saving}
+                  className="debug-save-btn"
+                >
+                  {saving ? "Saving..." : "Save"}
+                </button>
+                <button
+                  onClick={cancelEditing}
+                  disabled={saving}
+                  className="debug-cancel-btn"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+          </div>
         </div>
         <div className="debug-section-content">
-          <details className="debug-json-details">
-            <summary>Click to view raw JSON</summary>
-            <pre className="debug-json">{formatJson(storeData)}</pre>
-          </details>
+          {isEditing ? (
+            <div className="debug-json-editor">
+              <textarea
+                value={editedJson}
+                onChange={(e) => setEditedJson(e.target.value)}
+                className="debug-json-textarea"
+                rows={20}
+                disabled={saving}
+              />
+              {jsonError && (
+                <div className="debug-json-error">
+                  <strong>JSON Error:</strong> {jsonError}
+                </div>
+              )}
+              {validationErrors.length > 0 && (
+                <div className="debug-validation-errors">
+                  <strong>Validation Errors:</strong>
+                  <ul>
+                    {validationErrors.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          ) : (
+            <details className="debug-json-details">
+              <summary>Click to view raw JSON</summary>
+              <pre className="debug-json">{formatJson(storeData)}</pre>
+            </details>
+          )}
         </div>
       </div>
     </div>
