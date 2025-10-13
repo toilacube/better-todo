@@ -1,102 +1,113 @@
-# Better Todo App
+# Better Todo
 
-A minimalist, feature-rich todo application built with React, TypeScript, and Tauri.
+A minimalist, cross-platform todo application built with React, TypeScript, and Tauri.
 
-## 📋 Architecture Overview
+## Features
 
-### 1. Core Structure
+- **Two Task Types**: Organize tasks into Daily Tasks and Must-Do Tasks
+- **Nested Subtasks**: Create unlimited levels of subtasks with expand/collapse
+- **Smart Completion**: Parent tasks auto-complete when all subtasks are done
+- **Daily History**: Automatic day transitions at midnight with completion tracking
+- **Auto Carry-Over**: Incomplete tasks automatically move to the next day (configurable)
+- **Smart Reminders**: Get notified about Must-Do tasks at configurable intervals
+- **Statistics Dashboard**: Track your productivity with charts, streaks, and completion rates
+- **Dark Mode**: Toggle between light and dark themes
+- **Debug Tools**: Advanced JSON editor with validation for power users
+- **Persistent Storage**: All data automatically saved locally
 
-- **TypeScript Interfaces**: Task, HistoryEntry, Settings, and AppState in `src/types.ts`
-- **Storage Wrapper**: Using localStorage in `src/store/storage.ts`
-- **Task Helpers**: Utility functions in `src/utils/taskHelpers.ts`
-- **Date Helpers**: Date manipulation utilities in `src/utils/dateHelpers.ts`
+## Setup
 
-### 2. Custom Hooks
+### Prerequisites
 
-- `src/hooks/useTasks.ts` - Task management with CRUD operations
-- `src/hooks/useHistory.ts` - History tracking and retrieval
-- `src/hooks/useSettings.ts` - Settings management
-- `src/hooks/useDarkMode.ts` - Dark mode toggle
+- [Node.js](https://nodejs.org/) (v22 or higher)
+- [Rust](https://www.rust-lang.org/tools/install) (for Tauri)
 
-### 3. UI Components
+### Installation
 
-- `src/components/TaskInput.tsx` - Input field for adding new tasks
-- `src/components/TaskItem.tsx` - Recursive task item with nested subtask support
-- `src/components/Header.tsx` - Header with navigation icons
-- `src/components/Settings.tsx` - Settings modal with toggles
-- `src/components/Statistics.tsx` - Statistics page with charts and history
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/better-todo.git
+cd better-todo
+```
 
-### 4. Main Application
+2. Install dependencies:
+```bash
+npm install
+```
 
-- `src/App.tsx` - Main app with tab navigation, day transition logic, and Must-Do reminders
-- `src/App.css` - Comprehensive CSS with dark mode support following minimalist design
-
-### 5. Tauri Integration
-
-- Added `tauri-plugin-store` for data persistence
-- Added `tauri-plugin-notification` for Must-Do reminders
-- Updated `src-tauri/src/lib.rs` with plugin initialization
-- Updated `src-tauri/capabilities/default.json` with permissions
-
-### 6. Dependencies Installed
-
-- **lucide-react** - Icon library
-- **recharts** - Charts for statistics
-- **Tauri plugins** - For notifications and storage
-
-## 🎯 Key Features Implemented
-
-- ✅ **Two Task Types**: Daily Tasks and Must-Do Daily Tasks with separate tabs
-- ✅ **Nested Task Structure**: Unlimited levels of subtasks with expand/collapse
-- ✅ **Auto-completion Logic**: Parent/child task completion cascading
-- ✅ **Visual Indicators**: Checkboxes, strikethrough, counters (3/5)
-- ✅ **Daily History System**: Automatic day transition at midnight
-- ✅ **Auto Carry-Over**: Configurable incomplete task carry-over
-- ✅ **Must-Do Reminders**: Configurable interval notifications
-- ✅ **Statistics Page**: Charts, streaks, completion rates, history cards
-- ✅ **Dark/Light Mode**: Theme toggle with CSS variables
-- ✅ **Minimalist Design**: Clean UI following the spec exactly
-- ✅ **LocalStorage Persistence**: Data saved automatically
-
-## 🚀 Running the Application
-
-### Development Mode
-
+3. Run in development mode:
 ```bash
 npm run tauri dev
 ```
 
-### Build for Production
+### Build
+
+Build distributable packages for your platform:
 
 ```bash
 npm run tauri build
 ```
 
-## 📂 Project Structure
+Installers will be available in `src-tauri/target/release/bundle/`
+
+## Usage
+
+### Adding Tasks
+
+- Type your task in the input field and press Enter
+- Switch between "Today" and "Must-Do" tabs to choose task type
+- Use Tab key to create a subtask under the current task
+
+### Managing Tasks
+
+- Click checkboxes to mark tasks as complete
+- Click the arrow icon to expand/collapse subtasks
+- Click the trash icon to delete a task
+
+### Settings
+
+Click the settings icon in the header to configure:
+- **Auto Carry-Over**: Move incomplete tasks to the next day
+- **Reminder Interval**: How often to show Must-Do notifications (in minutes)
+- **Dark Mode**: Toggle theme
+- **Auto Start**: Launch app on system startup
+
+### Statistics
+
+View your productivity metrics including:
+- Completion rate charts
+- Streak tracking
+- Historical task data
+- Daily summaries
+
+### Debug Mode
+
+Access advanced features via the debug icon:
+- View complete store data
+- Edit JSON directly with validation
+- Inspect task structure and settings
+
+## Tech Stack
+
+- **Frontend**: React + TypeScript
+- **Desktop Framework**: Tauri
+- **Icons**: Lucide React
+- **Charts**: Recharts
+- **Storage**: Tauri Plugin Store
+- **Notifications**: Tauri Plugin Notification
+
+## Project Structure
 
 ```
 src/
-├── components/         # React components
-│   ├── Header.tsx
-│   ├── TaskInput.tsx
-│   ├── TaskItem.tsx
-│   ├── Settings.tsx
-│   └── Statistics.tsx
-├── hooks/             # Custom React hooks
-│   ├── useTasks.ts
-│   ├── useHistory.ts
-│   ├── useSettings.ts
-│   └── useDarkMode.ts
-├── store/             # Storage layer
-│   └── storage.ts
-├── utils/             # Helper functions
-│   ├── taskHelpers.ts
-│   └── dateHelpers.ts
-├── types.ts           # TypeScript interfaces
-├── App.tsx            # Main application
-└── App.css            # Global styles
+├── components/      # React components
+├── hooks/          # Custom React hooks
+├── store/          # Storage layer
+├── utils/          # Helper functions
+├── types.ts        # TypeScript interfaces
+└── App.tsx         # Main application
 ```
 
-## ✨ Status
+## License
 
-The application successfully compiled and is ready to use! You can now run it with `npm run tauri dev` to start developing or `npm run tauri build` to create distributable packages for Windows, macOS, and Linux.
+MIT
