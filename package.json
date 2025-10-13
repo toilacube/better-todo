@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
@@ -22,10 +25,14 @@
     "recharts": "^3.2.1"
   },
   "devDependencies": {
+    "@jest/globals": "^30.2.0",
     "@tauri-apps/cli": "^2",
+    "@types/jest": "^30.0.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.5",
     "typescript": "~5.8.3",
     "vite": "^7.0.4"
   }
