@@ -3,15 +3,15 @@ import type { Task, TaskHistory, Settings } from "../types";
 
 // Create mock store instance
 const mockStore = {
-  get: jest.fn(),
-  set: jest.fn(),
-  save: jest.fn(),
+  get: jest.fn<(key: string) => Promise<any>>(),
+  set: jest.fn<(key: string, value: any) => Promise<void>>(),
+  save: jest.fn<() => Promise<void>>(),
 };
 
 // Mock the Tauri Store
 jest.mock("@tauri-apps/plugin-store", () => ({
   Store: {
-    load: jest.fn().mockResolvedValue(mockStore),
+    load: jest.fn<(path: string) => Promise<typeof mockStore>>().mockResolvedValue(mockStore),
   },
 }));
 
