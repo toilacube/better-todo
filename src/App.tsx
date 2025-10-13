@@ -10,6 +10,7 @@ import { useTasks } from "./hooks/useTasks";
 import { useHistory } from "./hooks/useHistory";
 import { useSettings } from "./hooks/useSettings";
 import { useDarkMode } from "./hooks/useDarkMode";
+import { useNotification } from "./hooks/useNotification";
 import { storage } from "./store/storage";
 import { isNewDay, getTodayDateString } from "./utils/dateHelpers";
 import { getIncompleteTasks } from "./utils/taskHelpers";
@@ -27,6 +28,7 @@ function App() {
   const { addHistoryEntry, getAllHistoryEntries } = useHistory();
   const todayTasks = useTasks("today");
   const mustDoTasks = useTasks("mustDo");
+  const { notify } = useNotification();
 
   // Apply dark mode
   useDarkMode(settings.darkMode);
@@ -71,23 +73,27 @@ function App() {
 
   // Must-Do reminders
   useEffect(() => {
-    if (activeTab !== "mustDo") return;
-
     const checkReminders = () => {
       const incompleteTasks = mustDoTasks.tasks.filter(
         (task) => !task.completed
       );
       if (incompleteTasks.length > 0) {
-        alert(`Bạn có ${incompleteTasks.length} Must-Do task chưa hoàn thành!`);
+        notify(
+          "Must-Do Tasks Reminder",
+          `You have ${incompleteTasks.length} incomplete Must-Do task${incompleteTasks.length > 1 ? "s" : ""}!`
+        );
       }
     };
 
-    // Set interval based on settings
-    const intervalMs = settings.notifyInterval * 60 * 60 * 1000;
-    const interval = setInterval(checkReminders, intervalMs);
+    // Set up periodic reminders if there are incomplete Must-Do tasks
+    // Notifications run every X hours based on notifyInterval setting
+    if (mustDoTasks.tasks.some((task) => !task.completed)) {
+      const intervalMs = settings.notifyInterval * 60 * 60 * 1000;
+      const interval = setInterval(checkReminders, intervalMs);
 
-    return () => clearInterval(interval);
-  }, [activeTab, mustDoTasks.tasks, settings.notifyInterval]);
+      return () => clearInterval(interval);
+    }
+  }, [mustDoTasks.tasks, settings.notifyInterval, notify]);
 
   const handleThemeToggle = async () => {
     await updateSettings({ darkMode: !settings.darkMode });
