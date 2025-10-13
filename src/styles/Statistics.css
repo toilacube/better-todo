@@ -210,3 +210,82 @@
     transform: scaleY(1);
   }
 }
+
+/* Statistics Header Row with Time Period Selector */
+.statistics-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.statistics-title {
+  margin-bottom: 0;
+}
+
+/* Time Period Selector */
+.time-period-selector {
+  display: flex;
+  gap: var(--space-xs);
+  border: 1px solid rgba(0, 0, 0, var(--opacity-ghost));
+  border-radius: var(--radius-md);
+  padding: var(--space-xs);
+  background-color: var(--color-bg);
+}
+
+.period-button {
+  padding: var(--space-sm) var(--space-md);
+  border: none;
+  background: none;
+  color: var(--color-fg);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  opacity: var(--opacity-subtle);
+  transition: opacity var(--duration-fast) var(--ease-smooth),
+    background-color var(--duration-fast) var(--ease-smooth),
+    color var(--duration-fast) var(--ease-smooth);
+  white-space: nowrap;
+}
+
+.period-button:hover {
+  opacity: var(--opacity-full);
+  background-color: rgba(0, 0, 0, var(--opacity-ghost));
+}
+
+.period-button.active {
+  opacity: var(--opacity-full);
+  background-color: var(--color-fg);
+  color: var(--color-bg);
+  font-weight: 500;
+}
+
+/* Chart description text */
+.chart-description {
+  font-size: var(--text-small);
+  color: var(--color-fg);
+  opacity: var(--opacity-subtle);
+  margin-bottom: var(--space-md);
+  font-family: var(--font-mono);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .statistics-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .time-period-selector {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .period-button {
+    flex: 1;
+    text-align: center;
+  }
+}

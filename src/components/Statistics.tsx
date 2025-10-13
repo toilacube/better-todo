@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
-import { HistoryEntry } from "../types";
+import { HistoryEntry, Task } from "../types";
 import { formatDate } from "../utils/dateHelpers";
 import { countTasks } from "../utils/taskHelpers";
 import {
@@ -16,17 +17,39 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Legend,
 } from "recharts";
 import { TaskItem } from "./TaskItem";
 
+type TimePeriod = 7 | 30 | 90 | "all";
+
 interface StatisticsProps {
   history: HistoryEntry[];
+  todayTasks: Task[];
+  mustDoTasks: Task[];
   onBack: () => void;
 }
 
-export const Statistics: React.FC<StatisticsProps> = ({ history, onBack }) => {
-  // Calculate summary statistics
-  const totalStats = history.reduce(
+export const Statistics: React.FC<StatisticsProps> = ({
+  history,
+  todayTasks,
+  mustDoTasks,
+  onBack
+}) => {
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>(30);
+
+  // Filter history based on selected time period
+  const getFilteredHistory = () => {
+    if (timePeriod === "all") {
+      return history;
+    }
+    return history.slice(0, timePeriod);
+  };
+
+  const filteredHistory = getFilteredHistory();
+
+  // Calculate summary statistics from filtered history
+  const totalStats = filteredHistory.reduce(
     (acc, entry) => {
       const counts = countTasks(entry.tasks);
       return {
@@ -42,36 +65,42 @@ export const Statistics: React.FC<StatisticsProps> = ({ history, onBack }) => {
       ? Math.round((totalStats.completed / totalStats.total) * 100)
       : 0;
 
-  // Prepare data for charts (last 30 days)
-  const last30Days = history.slice(0, 30).reverse();
-
-  const trendData = last30Days.map((entry, index) => {
+  // 1. Stacked Bar Chart Data (Shows bars for the selected period)
+  const barChartData = filteredHistory.slice().reverse().map((entry) => {
     const counts = countTasks(entry.tasks);
     return {
-      day: index + 1,
+      date: formatDate(entry.date).split(" ").slice(0, 3).join(" "), // Format: "Mon Oct 06"
       completed: counts.completed,
-      total: counts.total,
+      incomplete: counts.total - counts.completed,
     };
   });
 
-  const rateData = last30Days.map((entry, index) => {
+  // 2. Pie Chart Data (Current Status - Today vs Must-Do)
+  const todayCounts = countTasks(todayTasks);
+  const mustDoCounts = countTasks(mustDoTasks);
+  const currentStatusData = [
+    { name: "Today Tasks", value: todayCounts.total, color: "#000000" },
+    { name: "Must-Do Tasks", value: mustDoCounts.total, color: "#DC2626" },
+  ];
+
+  // 3. Line Chart Data (Productivity Trend for selected period)
+  const productivityTrendData = filteredHistory.slice().reverse().map((entry, index) => {
     const counts = countTasks(entry.tasks);
     const rate = counts.total > 0 ? (counts.completed / counts.total) * 100 : 0;
     return {
       day: index + 1,
-      rate: Math.round(rate),
+      date: formatDate(entry.date).split(" ").slice(0, 3).join(" "),
+      completionRate: parseFloat(rate.toFixed(1)),
     };
   });
-
-  const pieData = [
-    { name: "Completed", value: totalStats.completed },
-    { name: "Pending", value: totalStats.total - totalStats.completed },
-  ];
 
   // Calculate streaks
   const streaks = calculateStreaks(history);
 
-  const COLORS = ["#000000", "#9CA3AF"];
+  const STACKED_COLORS = {
+    completed: "#10B981",
+    incomplete: "#F59E0B",
+  };
 
   return (
     <motion.div
@@ -94,7 +123,37 @@ export const Statistics: React.FC<StatisticsProps> = ({ history, onBack }) => {
       </div>
 
       <div className="statistics-content">
-        <h1 className="statistics-title">Statistics</h1>
+        <div className="statistics-header-row">
+          <h1 className="statistics-title">Statistics</h1>
+
+          {/* Time Period Selector */}
+          <div className="time-period-selector">
+            <button
+              className={`period-button ${timePeriod === 7 ? "active" : ""}`}
+              onClick={() => setTimePeriod(7)}
+            >
+              7 Days
+            </button>
+            <button
+              className={`period-button ${timePeriod === 30 ? "active" : ""}`}
+              onClick={() => setTimePeriod(30)}
+            >
+              30 Days
+            </button>
+            <button
+              className={`period-button ${timePeriod === 90 ? "active" : ""}`}
+              onClick={() => setTimePeriod(90)}
+            >
+              90 Days
+            </button>
+            <button
+              className={`period-button ${timePeriod === "all" ? "active" : ""}`}
+              onClick={() => setTimePeriod("all")}
+            >
+              All Time
+            </button>
+          </div>
+        </div>
 
         {/* Summary Cards */}
         <div className="summary-cards">
@@ -116,80 +175,70 @@ export const Statistics: React.FC<StatisticsProps> = ({ history, onBack }) => {
           </div>
         </div>
 
-        {/* Trend Chart */}
-        {trendData.length > 0 && (
+        {/* 1. Stacked Bar Chart - Completion Overview */}
+        {barChartData.length > 0 && (
           <div className="chart-section">
-            <h2 className="chart-title">Completion Trend</h2>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={trendData}>
+            <h2 className="chart-title">
+              Task Completion Overview ({timePeriod === "all" ? "All Time" : `Last ${timePeriod} Days`})
+            </h2>
+            <p className="chart-description">
+              Comparing completed vs incomplete tasks across days
+            </p>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={barChartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis dataKey="day" />
+                <XAxis dataKey="date" />
                 <YAxis />
                 <Tooltip />
-                <Line
-                  type="monotone"
+                <Legend />
+                <Bar
                   dataKey="completed"
-                  stroke="#000000"
-                  strokeWidth={2}
+                  stackId="a"
+                  fill={STACKED_COLORS.completed}
                   name="Completed"
                 />
-                <Line
-                  type="monotone"
-                  dataKey="total"
-                  stroke="#9CA3AF"
-                  strokeWidth={2}
-                  strokeDasharray="5 5"
-                  name="Total"
+                <Bar
+                  dataKey="incomplete"
+                  stackId="a"
+                  fill={STACKED_COLORS.incomplete}
+                  name="Incomplete"
                 />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-
-        {/* Rate Bar Chart */}
-        {rateData.length > 0 && (
-          <div className="chart-section">
-            <h2 className="chart-title">Completion Rate</h2>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={rateData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis dataKey="day" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="rate" fill="#000000" name="Rate %" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         )}
 
-        {/* Pie Chart and Streaks */}
+        {/* Charts Row: Pie Chart and Streaks */}
         <div className="charts-row">
+          {/* 2. Pie Chart - Current Status */}
           <div className="chart-section">
-            <h2 className="chart-title">Distribution</h2>
-            <ResponsiveContainer width="100%" height={200}>
+            <h2 className="chart-title">Current Task Status</h2>
+            <p className="chart-description">
+              Proportion of your current task load
+            </p>
+            <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
-                  data={pieData}
+                  data={currentStatusData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={renderLabel}
+                  label={renderCurrentStatusLabel}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {pieData.map((_entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
+                  {currentStatusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip />
+                <Legend />
               </PieChart>
             </ResponsiveContainer>
           </div>
 
+          {/* Streak Section */}
           <div className="chart-section">
             <h2 className="chart-title">Streak</h2>
             <div className="streak-container">
@@ -207,10 +256,42 @@ export const Statistics: React.FC<StatisticsProps> = ({ history, onBack }) => {
           </div>
         </div>
 
+        {/* 3. Line Chart - Productivity Trend */}
+        {productivityTrendData.length > 0 && (
+          <div className="chart-section">
+            <h2 className="chart-title">
+              Productivity Trend ({timePeriod === "all" ? "All Time" : `Last ${timePeriod} Days`})
+            </h2>
+            <p className="chart-description">
+              Tracking your completion rate over time
+            </p>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={productivityTrendData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="day" label={{ value: "Days", position: "insideBottom", offset: -5 }} />
+                <YAxis label={{ value: "Completion Rate (%)", angle: -90, position: "insideLeft" }} />
+                <Tooltip
+                  formatter={(value: number) => [`${value}%`, "Completion Rate"]}
+                />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="completionRate"
+                  stroke="#000000"
+                  strokeWidth={2}
+                  name="Completion Rate"
+                  dot={{ fill: "#000000", r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+
         {/* History */}
         <div className="history-section">
           <h2 className="chart-title">History</h2>
-          {history.slice(0, 10).map((entry) => (
+          {filteredHistory.slice(0, 10).map((entry) => (
             <div key={entry.date} className="history-card">
               <div className="history-header">
                 <span className="history-date">{formatDate(entry.date)}</span>
@@ -239,7 +320,7 @@ export const Statistics: React.FC<StatisticsProps> = ({ history, onBack }) => {
 };
 
 // Helper function for pie chart labels
-const renderLabel = (entry: any) => {
+const renderCurrentStatusLabel = (entry: any) => {
   return `${entry.name}: ${entry.value}`;
 };
 

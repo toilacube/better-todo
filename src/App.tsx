@@ -106,6 +106,8 @@ function App() {
     return (
       <Statistics
         history={getAllHistoryEntries()}
+        todayTasks={todayTasks.tasks}
+        mustDoTasks={mustDoTasks.tasks}
         onBack={() => setView("main")}
       />
     );
