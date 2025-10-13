@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 import { storage } from "../store/storage";
 import { Task, TaskHistory, Settings } from "../types";
+import { useNotification } from "../hooks/useNotification";
 import "../styles/Debug.css";
 
 interface DebugProps {
@@ -32,6 +33,9 @@ export function Debug({ onBack }: DebugProps = {}) {
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [notificationTestResult, setNotificationTestResult] = useState<string | null>(null);
+
+  const { notify, permissionGranted } = useNotification();
 
   useEffect(() => {
     loadStoreData();
@@ -240,6 +244,32 @@ export function Debug({ onBack }: DebugProps = {}) {
       );
     } finally {
       setSaving(false);
+    }
+  };
+
+  const testNotification = async () => {
+    try {
+      setNotificationTestResult(null);
+
+      if (!permissionGranted) {
+        setNotificationTestResult("Notification permission not granted. Please enable notifications in your system settings.");
+        return;
+      }
+
+      await notify(
+        "Test Notification",
+        "If you can see this, notifications are working correctly!"
+      );
+      setNotificationTestResult("Test notification sent successfully!");
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setNotificationTestResult(null), 3000);
+    } catch (err) {
+      setNotificationTestResult(
+        `Failed to send notification: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }`
+      );
     }
   };
 
@@ -472,6 +502,64 @@ export function Debug({ onBack }: DebugProps = {}) {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Notification Test */}
+      <div className="debug-section">
+        <div className="debug-section-header">
+          <h3>Notification Test</h3>
+        </div>
+        <div className="debug-section-content">
+          <div className="debug-notification-test">
+            <div className="debug-notification-status">
+              <strong>Permission Status:</strong>
+              <span
+                className={permissionGranted ? "enabled" : "disabled"}
+                style={{ marginLeft: "8px" }}
+              >
+                {permissionGranted ? "Granted" : "Not Granted"}
+              </span>
+            </div>
+            <button
+              onClick={testNotification}
+              className="debug-test-notification-btn"
+              style={{
+                backgroundColor: "#28a745",
+                color: "white",
+                padding: "10px 20px",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontSize: "14px",
+                marginTop: "10px",
+              }}
+            >
+              Test Notification
+            </button>
+            {notificationTestResult && (
+              <div
+                className={`debug-notification-result ${
+                  notificationTestResult.includes("success")
+                    ? "success"
+                    : "error"
+                }`}
+                style={{
+                  marginTop: "10px",
+                  padding: "10px",
+                  borderRadius: "4px",
+                  backgroundColor: notificationTestResult.includes("success")
+                    ? "#d4edda"
+                    : "#f8d7da",
+                  color: notificationTestResult.includes("success")
+                    ? "#155724"
+                    : "#721c24",
+                }}
+              >
+                {notificationTestResult}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Task History */}
