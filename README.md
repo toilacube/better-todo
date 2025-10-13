@@ -107,7 +107,3 @@ src/
 ├── types.ts        # TypeScript interfaces
 └── App.tsx         # Main application
 ```
-
-## License
-
-MIT
