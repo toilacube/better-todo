@@ -1,9 +1,10 @@
-import { BarChart3, Moon, Sun, Settings } from "lucide-react";
+import { BarChart3, Moon, Sun, Settings, Bug } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface HeaderProps {
   onStatsClick: () => void;
   onSettingsClick: () => void;
+  onDebugClick: () => void;
   onThemeToggle: () => void;
   darkMode: boolean;
 }
@@ -11,6 +12,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   onStatsClick,
   onSettingsClick,
+  onDebugClick,
   onThemeToggle,
   darkMode,
 }) => {
@@ -42,6 +44,15 @@ export const Header: React.FC<HeaderProps> = ({
           whileTap={{ scale: 0.95 }}
         >
           <BarChart3 size={24} strokeWidth={1.5} />
+        </motion.button>
+        <motion.button
+          onClick={onDebugClick}
+          className="header-button"
+          aria-label="Debug"
+          whileHover={{ scale: 1.1, rotate: 5 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Bug size={24} strokeWidth={1.5} />
         </motion.button>
         <motion.button
           onClick={onThemeToggle}

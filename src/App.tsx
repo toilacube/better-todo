@@ -6,6 +6,7 @@ import { TaskInput } from "./components/TaskInput";
 import { TaskItem } from "./components/TaskItem";
 import { Settings } from "./components/Settings";
 import { Statistics } from "./components/Statistics";
+import { Debug } from "./components/Debug";
 import { useTasks } from "./hooks/useTasks";
 import { useHistory } from "./hooks/useHistory";
 import { useSettings } from "./hooks/useSettings";
@@ -17,7 +18,7 @@ import { getIncompleteTasks } from "./utils/taskHelpers";
 import { TabType } from "./types";
 import "./App.css";
 
-type View = "main" | "statistics";
+type View = "main" | "statistics" | "debug";
 
 function App() {
   const [activeTab, setActiveTab] = useState<TabType>("today");
@@ -80,7 +81,9 @@ function App() {
       if (incompleteTasks.length > 0) {
         notify(
           "Must-Do Tasks Reminder",
-          `You have ${incompleteTasks.length} incomplete Must-Do task${incompleteTasks.length > 1 ? "s" : ""}!`
+          `You have ${incompleteTasks.length} incomplete Must-Do task${
+            incompleteTasks.length > 1 ? "s" : ""
+          }!`
         );
       }
     };
@@ -108,10 +111,15 @@ function App() {
     );
   }
 
+  if (view === "debug") {
+    return <Debug onBack={() => setView("main")} />;
+  }
+
   return (
     <div className="app">
       <Header
         onStatsClick={() => setView("statistics")}
+        onDebugClick={() => setView("debug")}
         onSettingsClick={() => setIsSettingsOpen(true)}
         onThemeToggle={handleThemeToggle}
         darkMode={settings.darkMode}
