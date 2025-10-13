@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Task, TabType } from "../types";
 import { storage } from "../store/storage";
 import {
@@ -12,23 +12,34 @@ import {
   areAllTasksExpanded,
 } from "../utils/taskHelpers";
 
-export const useTasks = (type: TabType) => {
+export const useTasks = (type: TabType, reloadTrigger?: number) => {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const isLoadingRef = useRef(false);
 
-  // Load tasks from storage on mount
+  // Load tasks from storage on mount and when reloadTrigger changes
   useEffect(() => {
     const loadTasks = async () => {
+      isLoadingRef.current = true;
       const loadedTasks =
         type === "today"
           ? await storage.getTodayTasks()
           : await storage.getMustDoTasks();
       setTasks(loadedTasks);
+      // Reset flag after a small delay to allow state to settle
+      setTimeout(() => {
+        isLoadingRef.current = false;
+      }, 0);
     };
     loadTasks();
-  }, [type]);
+  }, [type, reloadTrigger]);
 
-  // Save tasks to storage whenever they change
+  // Save tasks to storage whenever they change (but not during load)
   useEffect(() => {
+    // Skip saving if we're currently loading
+    if (isLoadingRef.current) {
+      return;
+    }
+
     const saveTasks = async () => {
       if (type === "today") {
         await storage.setTodayTasks(tasks);

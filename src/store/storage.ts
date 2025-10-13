@@ -73,7 +73,7 @@ export const storage = {
   },
 
   // Specific setters
-  async setTodayTasks(tasks: Task[]): Promise<void> {
+  async   setTodayTasks(tasks: Task[]): Promise<void> {
     await this.set(STORAGE_KEYS.TODAY_TASKS, tasks);
   },
 
@@ -91,5 +91,29 @@ export const storage = {
 
   async setSettings(settings: Settings): Promise<void> {
     await this.set(STORAGE_KEYS.SETTINGS, settings);
+  },
+
+  // Batch operation to set all data atomically
+  async setAll(data: {
+    todayTasks: Task[];
+    mustDoTasks: Task[];
+    taskHistory: TaskHistory;
+    lastDate: string;
+    settings: Settings;
+  }): Promise<void> {
+    try {
+      const store = await getStore();
+      // Set all values
+      await store.set(STORAGE_KEYS.TODAY_TASKS, data.todayTasks);
+      await store.set(STORAGE_KEYS.MUST_DO_TASKS, data.mustDoTasks);
+      await store.set(STORAGE_KEYS.TASK_HISTORY, data.taskHistory);
+      await store.set(STORAGE_KEYS.LAST_DATE, data.lastDate);
+      await store.set(STORAGE_KEYS.SETTINGS, data.settings);
+      // Save once after all values are set
+      await store.save();
+    } catch (error) {
+      console.error("Error writing all data to storage:", error);
+      throw error; // Re-throw to allow caller to handle
+    }
   },
 };

@@ -30,10 +30,13 @@ export function Debug({ onBack }: DebugProps = {}) {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editedJson, setEditedJson] = useState<string>("");
+  const [parsedData, setParsedData] = useState<StoreData | null>(null);
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [notificationTestResult, setNotificationTestResult] = useState<string | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   const { notify, permissionGranted } = useNotification();
 
@@ -197,45 +200,68 @@ export function Debug({ onBack }: DebugProps = {}) {
     setEditedJson("");
     setJsonError(null);
     setValidationErrors([]);
+    setSaveSuccess(false);
   };
 
-  const saveJson = async () => {
+  const handleSaveClick = () => {
+    // Validate JSON first
+    setJsonError(null);
+    setValidationErrors([]);
+    setParsedData(null);
+
     try {
-      setSaving(true);
-      setJsonError(null);
-      setValidationErrors([]);
+      const parsed = JSON.parse(editedJson);
+      const errors = validateStoreData(parsed);
 
-      // Parse JSON
-      let parsedData;
-      try {
-        parsedData = JSON.parse(editedJson);
-      } catch (err) {
-        setJsonError(
-          `Invalid JSON: ${err instanceof Error ? err.message : "Parse error"}`
-        );
-        return;
-      }
-
-      // Validate data structure
-      const errors = validateStoreData(parsedData);
       if (errors.length > 0) {
         setValidationErrors(errors);
         return;
       }
 
-      // Save to storage
-      await Promise.all([
-        storage.setTodayTasks(parsedData.todayTasks),
-        storage.setMustDoTasks(parsedData.mustDoTasks),
-        storage.setTaskHistory(parsedData.taskHistory),
-        storage.setLastDate(parsedData.lastDate),
-        storage.setSettings(parsedData.settings),
-      ]);
+      // Store parsed data to avoid re-parsing
+      setParsedData(parsed);
+      // Show confirmation dialog
+      setShowConfirmation(true);
+    } catch (err) {
+      setJsonError(
+        `Invalid JSON: ${err instanceof Error ? err.message : "Parse error"}`
+      );
+    }
+  };
+
+  const confirmSave = async () => {
+    setShowConfirmation(false);
+    await saveJson();
+  };
+
+  const cancelSave = () => {
+    setShowConfirmation(false);
+  };
+
+  const saveJson = async () => {
+    if (!parsedData) {
+      setJsonError("No data to save. Please validate first.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setJsonError(null);
+      setValidationErrors([]);
+      setSaveSuccess(false);
+
+      // Save all data atomically using batch operation
+      await storage.setAll(parsedData);
 
       // Reload data and exit editing mode
       await loadStoreData();
       setIsEditing(false);
       setEditedJson("");
+      setParsedData(null);
+      setSaveSuccess(true);
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err) {
       setJsonError(
         `Failed to save: ${
@@ -246,6 +272,21 @@ export function Debug({ onBack }: DebugProps = {}) {
       setSaving(false);
     }
   };
+
+//   const exportJson = () => {
+//     if (!storeData) return;
+
+//     const dataStr = formatJson(storeData);
+//     const dataBlob = new Blob([dataStr], { type: "application/json" });
+//     const url = URL.createObjectURL(dataBlob);
+//     const link = document.createElement("a");
+//     link.href = url;
+//     link.download = `better-todo-data-${new Date().toISOString().split("T")[0]}.json`;
+//     document.body.appendChild(link);
+//     link.click();
+//     document.body.removeChild(link);
+//     URL.revokeObjectURL(url);
+//   };
 
   const testNotification = async () => {
     try {
@@ -513,26 +554,13 @@ export function Debug({ onBack }: DebugProps = {}) {
           <div className="debug-notification-test">
             <div className="debug-notification-status">
               <strong>Permission Status:</strong>
-              <span
-                className={permissionGranted ? "enabled" : "disabled"}
-                style={{ marginLeft: "8px" }}
-              >
+              <span className={permissionGranted ? "enabled" : "disabled"}>
                 {permissionGranted ? "Granted" : "Not Granted"}
               </span>
             </div>
             <button
               onClick={testNotification}
               className="debug-test-notification-btn"
-              style={{
-                backgroundColor: "#28a745",
-                color: "white",
-                padding: "10px 20px",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontSize: "14px",
-                marginTop: "10px",
-              }}
             >
               Test Notification
             </button>
@@ -543,17 +571,6 @@ export function Debug({ onBack }: DebugProps = {}) {
                     ? "success"
                     : "error"
                 }`}
-                style={{
-                  marginTop: "10px",
-                  padding: "10px",
-                  borderRadius: "4px",
-                  backgroundColor: notificationTestResult.includes("success")
-                    ? "#d4edda"
-                    : "#f8d7da",
-                  color: notificationTestResult.includes("success")
-                    ? "#155724"
-                    : "#721c24",
-                }}
               >
                 {notificationTestResult}
               </div>
@@ -614,21 +631,24 @@ export function Debug({ onBack }: DebugProps = {}) {
           <h3>JSON Editor {isEditing ? "(Editing)" : "(View Mode)"}</h3>
           <div className="debug-json-controls">
             {!isEditing ? (
-              <button
-                onClick={startEditing}
-                className="debug-edit-btn"
-                style={{
-                  backgroundColor: "#007bff",
-                  color: "white",
-                  padding: "10px 20px",
-                }}
-              >
-                Edit JSON
-              </button>
+              <>
+                {/* <button
+                  onClick={exportJson}
+                  className="debug-export-btn"
+                >
+                  Export JSON
+                </button> */}
+                <button
+                  onClick={startEditing}
+                  className="debug-edit-btn"
+                >
+                  Edit JSON
+                </button>
+              </>
             ) : (
               <div className="debug-edit-controls">
                 <button
-                  onClick={saveJson}
+                  onClick={handleSaveClick}
                   disabled={saving}
                   className="debug-save-btn"
                 >
@@ -679,6 +699,43 @@ export function Debug({ onBack }: DebugProps = {}) {
           )}
         </div>
       </div>
+
+      {/* Success Message */}
+      {saveSuccess && (
+        <div className="debug-success-message">
+          JSON data saved successfully!
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {showConfirmation && (
+        <div className="debug-confirmation-overlay">
+          <div className="debug-confirmation-modal">
+            <h3>Confirm Save</h3>
+            <p>
+              This will replace ALL your current data with the edited JSON.
+              <br />
+              <strong>This action cannot be undone.</strong>
+              <br />
+              Are you sure you want to continue?
+            </p>
+            <div className="debug-confirmation-buttons">
+              <button
+                onClick={cancelSave}
+                className="debug-confirm-cancel-btn"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmSave}
+                className="debug-confirm-save-btn"
+              >
+                Yes, Replace Data
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

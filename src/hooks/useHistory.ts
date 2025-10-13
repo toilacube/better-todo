@@ -3,7 +3,7 @@ import { TaskHistory, Task } from '../types';
 import { storage } from '../store/storage';
 import { countRootTasks } from '../utils/taskHelpers';
 
-export const useHistory = () => {
+export const useHistory = (reloadTrigger?: number) => {
   const [history, setHistory] = useState<TaskHistory>({});
 
   useEffect(() => {
@@ -12,13 +12,16 @@ export const useHistory = () => {
       setHistory(loadedHistory);
     };
     loadHistory();
-  }, []);
+  }, [reloadTrigger]);
 
   const addHistoryEntry = async (date: string, tasks: Task[]) => {
     const { total, completed } = countRootTasks(tasks);
 
+    // Load current history from storage to avoid race conditions
+    const currentHistory = await storage.getTaskHistory();
+
     const newHistory = {
-      ...history,
+      ...currentHistory,
       [date]: {
         date,
         tasks,

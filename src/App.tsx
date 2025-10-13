@@ -24,11 +24,12 @@ function App() {
   const [activeTab, setActiveTab] = useState<TabType>("today");
   const [view, setView] = useState<View>("main");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [reloadTrigger, setReloadTrigger] = useState(0);
 
-  const { settings, updateSettings } = useSettings();
-  const { addHistoryEntry, getAllHistoryEntries } = useHistory();
-  const todayTasks = useTasks("today");
-  const mustDoTasks = useTasks("mustDo");
+  const { settings, updateSettings } = useSettings(reloadTrigger);
+  const { addHistoryEntry, getAllHistoryEntries } = useHistory(reloadTrigger);
+  const todayTasks = useTasks("today", reloadTrigger);
+  const mustDoTasks = useTasks("mustDo", reloadTrigger);
   const { notify } = useNotification();
 
   // Apply dark mode
@@ -114,7 +115,10 @@ function App() {
   }
 
   if (view === "debug") {
-    return <Debug onBack={() => setView("main")} />;
+    return <Debug onBack={() => {
+      setView("main");
+      setReloadTrigger(prev => prev + 1);
+    }} />;
   }
 
   return (

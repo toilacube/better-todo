@@ -3,7 +3,7 @@ import { Settings } from "../types";
 import { storage } from "../store/storage";
 import { isEnabled } from "@tauri-apps/plugin-autostart";
 
-export const useSettings = () => {
+export const useSettings = (reloadTrigger?: number) => {
   const [settings, setSettings] = useState<Settings>({
     autoCarryOver: true,
     notifyInterval: 3,
@@ -35,7 +35,7 @@ export const useSettings = () => {
     };
 
     loadSettings();
-  }, []);
+  }, [reloadTrigger]);
 
   const updateSettings = async (newSettings: Partial<Settings>) => {
     const updated = { ...settings, ...newSettings };
