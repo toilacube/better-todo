@@ -137,9 +137,8 @@
 }
 
 .topic-action-button {
-  background: var(--color-subtle);
-  border: 1px solid var(--color-tertiary);
-  border-radius: var(--radius-sm);
+  background: none;
+  border: none;
   cursor: pointer;
   color: var(--color-fg);
   opacity: var(--opacity-active);
@@ -154,8 +153,6 @@
 
 .topic-action-button:hover {
   opacity: var(--opacity-full);
-  background: var(--color-fg);
-  color: var(--color-bg);
   transform: scale(1.15);
 }
 
@@ -164,8 +161,6 @@
 }
 
 .topic-action-button.active {
-  background: var(--color-fg);
-  color: var(--color-bg);
   opacity: var(--opacity-full);
 }
 
@@ -593,11 +588,3 @@
   margin: 0;
   opacity: var(--opacity-subtle);
 }
-
-/* Action Button Active State */
-.task-action-button.active {
-  color: var(--color-fg);
-  opacity: var(--opacity-full);
-}
-
-/* Dark mode is handled by CSS variables automatically through the design system */
