@@ -116,10 +116,14 @@ function App() {
   }
 
   if (view === "debug") {
-    return <Debug onBack={() => {
-      setView("main");
-      setReloadTrigger(prev => prev + 1);
-    }} />;
+    return (
+      <Debug
+        onBack={() => {
+          setView("main");
+          setReloadTrigger((prev) => prev + 1);
+        }}
+      />
+    );
   }
 
   return (
@@ -166,88 +170,89 @@ function App() {
             <div className="toolbar">
               <TaskInput onAdd={currentTasks.addTask} />
               {currentTasks.tasks.length > 0 && (
-            <div className="expand-collapse-buttons">
-              <motion.button
-                onClick={currentTasks.toggleExpandCollapse}
-                className="toolbar-button"
-                aria-label={
-                  currentTasks.allExpanded ? "Collapse all" : "Expand all"
-                }
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {currentTasks.allExpanded ? (
-                  <>
-                    <ChevronsUp size={18} strokeWidth={1.5} />
-                    <span>Collapse All</span>
-                  </>
-                ) : (
-                  <>
-                    <ChevronsDown size={18} strokeWidth={1.5} />
-                    <span>Expand All</span>
-                  </>
-                )}
-              </motion.button>
+                <div className="expand-collapse-buttons">
+                  <motion.button
+                    onClick={currentTasks.toggleExpandCollapse}
+                    className="toolbar-button"
+                    aria-label={
+                      currentTasks.allExpanded ? "Collapse all" : "Expand all"
+                    }
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {currentTasks.allExpanded ? (
+                      <>
+                        <ChevronsUp size={18} strokeWidth={1.5} />
+                        <span>Collapse All</span>
+                      </>
+                    ) : (
+                      <>
+                        <ChevronsDown size={18} strokeWidth={1.5} />
+                        <span>Expand All</span>
+                      </>
+                    )}
+                  </motion.button>
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {activeTab === "mustDo" && (
-          <motion.div
-            className="must-do-description"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
-          >
-            This is for must-do daily task list, the app will notify you each{" "}
-            {settings.notifyInterval} hour
-            {settings.notifyInterval > 1 ? "s" : ""} until you completed all
-            tasks in must-do.
-          </motion.div>
-        )}
-
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            className="tasks-container"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            {currentTasks.tasks.length === 0 ? (
+            {activeTab === "mustDo" && (
               <motion.div
-                className="empty-state"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
+                className="must-do-description"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
               >
-                NO TASKS YET
-                <br />
-                <span style={{ fontSize: "0.85em", opacity: 0.7 }}>
-                  Press Enter to add one
-                </span>
+                This is for must-do daily task list, the app will notify you
+                each {settings.notifyInterval} hour
+                {settings.notifyInterval > 1 ? "s" : ""} until you completed all
+                tasks in must-do.
               </motion.div>
-            ) : (
-              currentTasks.tasks.map((task, index) => (
-                <motion.div
-                  key={task.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05, duration: 0.3 }}
-                >
-                  <TaskItem
-                    task={task}
-                    onToggle={currentTasks.toggleTask}
-                    onDelete={currentTasks.removeTask}
-                    onAddSubtask={currentTasks.addSubtaskToTask}
-                    onToggleExpand={currentTasks.toggleExpansion}
-                  />
-                </motion.div>
-              ))
             )}
-          </motion.div>
-        </AnimatePresence>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                className="tasks-container"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {currentTasks.tasks.length === 0 ? (
+                  <motion.div
+                    className="empty-state"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                  >
+                    NO TASKS YET
+                    <br />
+                    <span style={{ fontSize: "0.85em", opacity: 0.7 }}>
+                      Press Enter to add one
+                    </span>
+                  </motion.div>
+                ) : (
+                  currentTasks.tasks.map((task, index) => (
+                    <motion.div
+                      key={task.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05, duration: 0.3 }}
+                    >
+                      <TaskItem
+                        task={task}
+                        onToggle={currentTasks.toggleTask}
+                        onDelete={currentTasks.removeTask}
+                        onAddSubtask={currentTasks.addSubtaskToTask}
+                        onToggleExpand={currentTasks.toggleExpansion}
+                        onUpdateText={currentTasks.updateTaskText}
+                      />
+                    </motion.div>
+                  ))
+                )}
+              </motion.div>
+            </AnimatePresence>
           </>
         )}
       </main>

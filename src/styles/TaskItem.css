@@ -124,6 +124,24 @@
   opacity: var(--opacity-muted);
 }
 
+.task-text-input {
+  background: none;
+  border: none;
+  font-size: var(--text-body);
+  color: var(--color-fg);
+  flex: 1;
+  text-align: left;
+  font-weight: 400;
+  font-family: var(--font-mono);
+  outline: none;
+  border-bottom: 1px solid var(--color-fg);
+  transition: border-color var(--duration-fast) var(--ease-smooth);
+}
+
+.task-text-input:focus {
+  border-bottom-color: var(--color-primary, var(--color-fg));
+}
+
 .task-counter {
   font-size: var(--text-small);
   color: var(--color-secondary);
@@ -136,7 +154,7 @@
   display: flex;
   gap: var(--space-xs);
   flex-shrink: 0;
-  opacity: 0;
+  opacity: var(--opacity-full);
   transition: opacity var(--duration-normal) var(--ease-smooth);
 }
 

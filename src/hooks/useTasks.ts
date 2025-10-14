@@ -10,6 +10,7 @@ import {
   expandAllTasks,
   collapseAllTasks,
   areAllTasksExpanded,
+  updateTaskText,
 } from "../utils/taskHelpers";
 
 export const useTasks = (type: TabType, reloadTrigger?: number) => {
@@ -72,6 +73,11 @@ export const useTasks = (type: TabType, reloadTrigger?: number) => {
     setTasks(toggleTaskExpansion(tasks, taskId));
   };
 
+  const updateTaskTextHandler = (taskId: number, newText: string) => {
+    if (!newText.trim()) return;
+    setTasks(updateTaskText(tasks, taskId, newText));
+  };
+
   const updateTasks = (newTasks: Task[]) => {
     setTasks(newTasks);
   };
@@ -101,6 +107,7 @@ export const useTasks = (type: TabType, reloadTrigger?: number) => {
     addSubtaskToTask,
     removeTask,
     toggleExpansion,
+    updateTaskText: updateTaskTextHandler,
     updateTasks,
     expandAll,
     collapseAll,

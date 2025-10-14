@@ -4,7 +4,6 @@ import { storage } from "../store/storage";
 import {
   createLearningTopic,
   createReferenceLink,
-  toggleTopicCompletion,
   updateTopicInTree,
   deleteTopicFromTree,
   addSubtopicToTopic,
@@ -69,10 +68,6 @@ export const useLearningTopics = (reloadTrigger?: number) => {
     setTopics(deleteTopicFromTree(topics, topicId));
   };
 
-  const toggleTopicCompletionHandler = (topicId: number) => {
-    setTopics(toggleTopicCompletion(topics, topicId));
-  };
-
   // Subtopic operations
   const addSubtopic = (parentId: number, title: string) => {
     if (!title.trim()) return;
@@ -86,19 +81,18 @@ export const useLearningTopics = (reloadTrigger?: number) => {
   };
 
   // Reference link operations
-  const addReferenceLink = (topicId: number, title: string, url: string) => {
-    if (!title.trim() || !url.trim()) return;
-    const link = createReferenceLink(title, url);
+  const addReferenceLink = (topicId: number, url: string) => {
+    if (!url.trim()) return;
+    const link = createReferenceLink(url);
     setTopics(addReferenceLinkToTopic(topics, topicId, link));
   };
 
   const updateReferenceLink = (
     topicId: number,
     linkId: number,
-    title: string,
     url: string
   ) => {
-    setTopics(updateReferenceLinkInTopic(topics, topicId, linkId, { title, url }));
+    setTopics(updateReferenceLinkInTopic(topics, topicId, linkId, { url }));
   };
 
   const deleteReferenceLink = (topicId: number, linkId: number) => {
@@ -178,7 +172,6 @@ export const useLearningTopics = (reloadTrigger?: number) => {
     updateTopic,
     updateTopicTitle,
     deleteTopic,
-    toggleTopicCompletion: toggleTopicCompletionHandler,
 
     // Subtopic operations
     addSubtopic,

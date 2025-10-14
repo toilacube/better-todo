@@ -11,17 +11,15 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LearningTopic } from "../types";
-import { countTopics } from "../utils/learningHelpers";
 import "../styles/TopicItem.css";
 
 interface TopicItemProps {
   topic: LearningTopic;
-  onToggleCompletion: (topicId: number) => void;
   onDelete: (topicId: number) => void;
   onAddSubtopic: (parentId: number, title: string) => void;
   onToggleExpand: (topicId: number) => void;
   onUpdateNotes: (topicId: number, notes: string) => void;
-  onAddReferenceLink: (topicId: number, title: string, url: string) => void;
+  onAddReferenceLink: (topicId: number, url: string) => void;
   onDeleteReferenceLink: (topicId: number, linkId: number) => void;
   onToggleBlogPost: (topicId: number) => void;
   onUpdateBlogPostURL: (topicId: number, url: string) => void;
@@ -31,7 +29,6 @@ interface TopicItemProps {
 
 export const TopicItem: React.FC<TopicItemProps> = ({
   topic,
-  onToggleCompletion,
   onDelete,
   onAddSubtopic,
   onToggleExpand,
@@ -48,7 +45,6 @@ export const TopicItem: React.FC<TopicItemProps> = ({
   const [showDetails, setShowDetails] = useState(false);
   const [notesText, setNotesText] = useState(topic.notes);
   const [isEditingNotes, setIsEditingNotes] = useState(false);
-  const [newLinkTitle, setNewLinkTitle] = useState("");
   const [newLinkUrl, setNewLinkUrl] = useState("");
   const [isAddingLink, setIsAddingLink] = useState(false);
   const [blogUrl, setBlogUrl] = useState(topic.blogPost.url || "");
@@ -56,10 +52,6 @@ export const TopicItem: React.FC<TopicItemProps> = ({
   const [editedTitle, setEditedTitle] = useState(topic.title);
 
   const hasSubtopics = topic.subtopics.length > 0;
-  const { total: totalCount } = countTopics(
-    topic.subtopics
-  );
-
   const handleAddSubtopic = () => {
     if (subtopicText.trim()) {
       onAddSubtopic(topic.id, subtopicText);
@@ -79,9 +71,8 @@ export const TopicItem: React.FC<TopicItemProps> = ({
   };
 
   const handleAddLink = () => {
-    if (newLinkTitle.trim() && newLinkUrl.trim()) {
-      onAddReferenceLink(topic.id, newLinkTitle, newLinkUrl);
-      setNewLinkTitle("");
+    if (newLinkUrl.trim()) {
+      onAddReferenceLink(topic.id, newLinkUrl);
       setNewLinkUrl("");
       setIsAddingLink(false);
     }
@@ -155,7 +146,7 @@ export const TopicItem: React.FC<TopicItemProps> = ({
               {topic.title}
             </span>
           )}
-          
+
           {topic.blogPost.written && (
             <span className="blog-badge" title="Blog post written">
               <BookOpen size={14} />
@@ -309,13 +300,6 @@ export const TopicItem: React.FC<TopicItemProps> = ({
               {isAddingLink && (
                 <div className="link-form">
                   <input
-                    type="text"
-                    value={newLinkTitle}
-                    onChange={(e) => setNewLinkTitle(e.target.value)}
-                    placeholder="Link title"
-                    className="link-input"
-                  />
-                  <input
                     type="url"
                     value={newLinkUrl}
                     onChange={(e) => setNewLinkUrl(e.target.value)}
@@ -340,7 +324,7 @@ export const TopicItem: React.FC<TopicItemProps> = ({
                           rel="noopener noreferrer"
                           className="link-title"
                         >
-                          {link.title}
+                          {link.url}
                         </a>
                       </div>
                       <button
@@ -419,7 +403,6 @@ export const TopicItem: React.FC<TopicItemProps> = ({
               >
                 <TopicItem
                   topic={subtopic}
-                  onToggleCompletion={onToggleCompletion}
                   onDelete={onDelete}
                   onAddSubtopic={onAddSubtopic}
                   onToggleExpand={onToggleExpand}

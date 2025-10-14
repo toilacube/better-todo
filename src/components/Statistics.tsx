@@ -34,7 +34,7 @@ export const Statistics: React.FC<StatisticsProps> = ({
   history,
   todayTasks,
   mustDoTasks,
-  onBack
+  onBack,
 }) => {
   const [timePeriod, setTimePeriod] = useState<TimePeriod>(30);
 
@@ -66,14 +66,17 @@ export const Statistics: React.FC<StatisticsProps> = ({
       : 0;
 
   // 1. Stacked Bar Chart Data (Shows bars for the selected period)
-  const barChartData = filteredHistory.slice().reverse().map((entry) => {
-    const counts = countTasks(entry.tasks);
-    return {
-      date: formatDate(entry.date).split(" ").slice(0, 3).join(" "), // Format: "Mon Oct 06"
-      completed: counts.completed,
-      incomplete: counts.total - counts.completed,
-    };
-  });
+  const barChartData = filteredHistory
+    .slice()
+    .reverse()
+    .map((entry) => {
+      const counts = countTasks(entry.tasks);
+      return {
+        date: formatDate(entry.date).split(" ").slice(0, 3).join(" "), // Format: "Mon Oct 06"
+        completed: counts.completed,
+        incomplete: counts.total - counts.completed,
+      };
+    });
 
   // 2. Pie Chart Data (Current Status - Today vs Must-Do)
   const todayCounts = countTasks(todayTasks);
@@ -84,15 +87,19 @@ export const Statistics: React.FC<StatisticsProps> = ({
   ];
 
   // 3. Line Chart Data (Productivity Trend for selected period)
-  const productivityTrendData = filteredHistory.slice().reverse().map((entry, index) => {
-    const counts = countTasks(entry.tasks);
-    const rate = counts.total > 0 ? (counts.completed / counts.total) * 100 : 0;
-    return {
-      day: index + 1,
-      date: formatDate(entry.date).split(" ").slice(0, 3).join(" "),
-      completionRate: parseFloat(rate.toFixed(1)),
-    };
-  });
+  const productivityTrendData = filteredHistory
+    .slice()
+    .reverse()
+    .map((entry, index) => {
+      const counts = countTasks(entry.tasks);
+      const rate =
+        counts.total > 0 ? (counts.completed / counts.total) * 100 : 0;
+      return {
+        day: index + 1,
+        date: formatDate(entry.date).split(" ").slice(0, 3).join(" "),
+        completionRate: parseFloat(rate.toFixed(1)),
+      };
+    });
 
   // Calculate streaks
   const streaks = calculateStreaks(history);
@@ -147,7 +154,9 @@ export const Statistics: React.FC<StatisticsProps> = ({
               90 Days
             </button>
             <button
-              className={`period-button ${timePeriod === "all" ? "active" : ""}`}
+              className={`period-button ${
+                timePeriod === "all" ? "active" : ""
+              }`}
               onClick={() => setTimePeriod("all")}
             >
               All Time
@@ -179,7 +188,8 @@ export const Statistics: React.FC<StatisticsProps> = ({
         {barChartData.length > 0 && (
           <div className="chart-section">
             <h2 className="chart-title">
-              Task Completion Overview ({timePeriod === "all" ? "All Time" : `Last ${timePeriod} Days`})
+              Task Completion Overview (
+              {timePeriod === "all" ? "All Time" : `Last ${timePeriod} Days`})
             </h2>
             <p className="chart-description">
               Comparing completed vs incomplete tasks across days
@@ -260,7 +270,8 @@ export const Statistics: React.FC<StatisticsProps> = ({
         {productivityTrendData.length > 0 && (
           <div className="chart-section">
             <h2 className="chart-title">
-              Productivity Trend ({timePeriod === "all" ? "All Time" : `Last ${timePeriod} Days`})
+              Productivity Trend (
+              {timePeriod === "all" ? "All Time" : `Last ${timePeriod} Days`})
             </h2>
             <p className="chart-description">
               Tracking your completion rate over time
@@ -268,10 +279,26 @@ export const Statistics: React.FC<StatisticsProps> = ({
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={productivityTrendData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis dataKey="day" label={{ value: "Days", position: "insideBottom", offset: -5 }} />
-                <YAxis label={{ value: "Completion Rate (%)", angle: -90, position: "insideLeft" }} />
+                <XAxis
+                  dataKey="day"
+                  label={{
+                    value: "Days",
+                    position: "insideBottom",
+                    offset: -5,
+                  }}
+                />
+                <YAxis
+                  label={{
+                    value: "Completion Rate (%)",
+                    angle: -90,
+                    position: "insideLeft",
+                  }}
+                />
                 <Tooltip
-                  formatter={(value: number) => [`${value}%`, "Completion Rate"]}
+                  formatter={(value: number) => [
+                    `${value}%`,
+                    "Completion Rate",
+                  ]}
                 />
                 <Legend />
                 <Line
@@ -308,6 +335,7 @@ export const Statistics: React.FC<StatisticsProps> = ({
                     onDelete={() => {}}
                     onAddSubtask={() => {}}
                     onToggleExpand={() => {}}
+                    onUpdateText={() => {}}
                   />
                 ))}
               </div>

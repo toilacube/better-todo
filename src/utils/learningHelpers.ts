@@ -32,12 +32,10 @@ export function createLearningTopic(title: string): LearningTopic {
  * Create a new reference link
  */
 export function createReferenceLink(
-  title: string,
   url: string
 ): ReferenceLink {
   return {
     id: generateLearningId(),
-    title,
     url,
   };
 }

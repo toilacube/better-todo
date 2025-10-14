@@ -42,7 +42,6 @@ export interface AppState {
 
 export interface ReferenceLink {
   id: number;
-  title: string;
   url: string;
 }
 

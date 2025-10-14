@@ -227,3 +227,24 @@ export const areAllTasksExpanded = (tasks: Task[]): boolean => {
 
   return checkRecursive(tasks);
 };
+
+// Update task text
+export const updateTaskText = (
+  tasks: Task[],
+  taskId: number,
+  newText: string
+): Task[] => {
+  const updateRecursive = (taskList: Task[]): Task[] => {
+    return taskList.map((task) => {
+      if (task.id === taskId) {
+        return { ...task, text: newText };
+      }
+      if (task.subtasks.length > 0) {
+        return { ...task, subtasks: updateRecursive(task.subtasks) };
+      }
+      return task;
+    });
+  };
+
+  return updateRecursive(tasks);
+};

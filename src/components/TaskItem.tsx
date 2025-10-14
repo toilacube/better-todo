@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronRight, Plus, Trash2, Check, X } from "lucide-react";
+import { ChevronRight, Plus, Trash2, Check, X, Pencil } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Task } from "../types";
 import { countCompletedSubtasks } from "../utils/taskHelpers";
@@ -10,6 +10,7 @@ interface TaskItemProps {
   onDelete: (taskId: number) => void;
   onAddSubtask: (parentId: number, text: string) => void;
   onToggleExpand: (taskId: number) => void;
+  onUpdateText: (taskId: number, newText: string) => void;
   level?: number;
 }
 
@@ -19,10 +20,13 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   onDelete,
   onAddSubtask,
   onToggleExpand,
+  onUpdateText,
   level = 0,
 }) => {
   const [isAddingSubtask, setIsAddingSubtask] = useState(false);
   const [subtaskText, setSubtaskText] = useState("");
+  const [isEditingText, setIsEditingText] = useState(false);
+  const [editedText, setEditedText] = useState(task.text);
 
   const hasSubtasks = task.subtasks.length > 0;
   const { completed: completedCount, total: totalCount } =
@@ -39,6 +43,18 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   const handleCancelAddSubtask = () => {
     setSubtaskText("");
     setIsAddingSubtask(false);
+  };
+
+  const handleSaveText = () => {
+    if (editedText.trim() && editedText !== task.text) {
+      onUpdateText(task.id, editedText.trim());
+    }
+    setIsEditingText(false);
+  };
+
+  const handleCancelEditText = () => {
+    setEditedText(task.text);
+    setIsEditingText(false);
   };
 
   return (
@@ -75,9 +91,27 @@ export const TaskItem: React.FC<TaskItemProps> = ({
             <div className="checkbox-circle" />
           </motion.button>
 
-          <span className={`task-text ${task.completed ? "completed" : ""}`}>
-            {task.text}
-          </span>
+          {isEditingText ? (
+            <input
+              type="text"
+              value={editedText}
+              onChange={(e) => setEditedText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSaveText();
+                } else if (e.key === "Escape") {
+                  handleCancelEditText();
+                }
+              }}
+              onBlur={handleSaveText}
+              autoFocus
+              className="task-text-input"
+            />
+          ) : (
+            <span className={`task-text ${task.completed ? "completed" : ""}`}>
+              {task.text}
+            </span>
+          )}
 
           {hasSubtasks && (
             <span className="task-counter">
@@ -87,6 +121,17 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         </div>
 
         <div className="task-item-actions">
+          <motion.button
+            onClick={() => setIsEditingText(true)}
+            className="task-action-button"
+            aria-label="Edit task"
+            title="Edit task"
+            whileHover={{ opacity: 1, scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Pencil size={18} strokeWidth={1.5} />
+          </motion.button>
+
           {!isAddingSubtask ? (
             <motion.button
               onClick={() => setIsAddingSubtask(true)}
@@ -180,6 +225,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
                   onDelete={onDelete}
                   onAddSubtask={onAddSubtask}
                   onToggleExpand={onToggleExpand}
+                  onUpdateText={onUpdateText}
                   level={level + 1}
                 />
               </motion.div>

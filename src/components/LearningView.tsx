@@ -116,7 +116,6 @@ export function LearningView(_props: LearningViewProps) {
                 >
                   <TopicItem
                     topic={topic}
-                    onToggleCompletion={learningTopics.toggleTopicCompletion}
                     onDelete={learningTopics.deleteTopic}
                     onAddSubtopic={learningTopics.addSubtopic}
                     onToggleExpand={learningTopics.toggleExpansion}
