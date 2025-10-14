@@ -1,0 +1,95 @@
+/* Week Navigator Styles - Motion-First Minimalist Design */
+.week-navigator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--color-subtle);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-lg);
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.week-nav-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-tertiary);
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  color: var(--color-fg);
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.week-nav-button:hover:not(:disabled) {
+  background: var(--color-fg);
+  border-color: var(--color-fg);
+  color: var(--color-bg);
+  transform: translateY(-2px);
+}
+
+.week-nav-button:active:not(:disabled) {
+  transform: translateY(0) scale(0.95);
+}
+
+.week-nav-button:disabled {
+  cursor: not-allowed;
+  opacity: var(--opacity-muted);
+}
+
+.week-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 300px;
+}
+
+.week-label {
+  font-size: var(--text-body-large);
+  font-weight: 600;
+  color: var(--color-fg);
+  font-family: var(--font-mono);
+}
+
+.week-status {
+  font-size: var(--text-tiny);
+  font-weight: 500;
+  color: var(--color-fg);
+  background: var(--color-subtle);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  opacity: var(--opacity-active);
+  font-family: var(--font-mono);
+}
+
+.current-week-button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-fg);
+  color: var(--color-bg);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--text-small);
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.current-week-button:hover {
+  transform: translateY(-2px);
+  opacity: var(--opacity-active);
+}
+
+.current-week-button:active {
+  transform: translateY(0) scale(0.95);
+}
+
+/* Dark mode is handled by CSS variables automatically through the design system */

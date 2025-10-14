@@ -1,6 +1,15 @@
 // Storage wrapper using Tauri Store plugin
 import { Store } from "@tauri-apps/plugin-store";
-import { Task, TaskHistory, Settings } from "../types";
+import {
+  Task,
+  TaskHistory,
+  Settings,
+  LearningTopic,
+  LearningHistory,
+  LearningSettings,
+  LearningStatistics,
+} from "../types";
+import { getCurrentWeekId } from "../utils/weekHelpers";
 
 const STORAGE_KEYS = {
   TODAY_TASKS: "dailyTasks", // Keep the same key for backward compatibility
@@ -8,6 +17,12 @@ const STORAGE_KEYS = {
   TASK_HISTORY: "taskHistory",
   LAST_DATE: "lastDate",
   SETTINGS: "settings",
+  // Learning Tracker keys
+  LEARNING_CURRENT_WEEK: "learningCurrentWeekTopics",
+  LEARNING_HISTORY: "learningHistory",
+  LEARNING_LAST_WEEK: "learningLastWeekId",
+  LEARNING_SETTINGS: "learningSettings",
+  LEARNING_STATISTICS: "learningStatistics",
 } as const;
 
 const DEFAULT_SETTINGS: Settings = {
@@ -15,6 +30,21 @@ const DEFAULT_SETTINGS: Settings = {
   notifyInterval: 3,
   darkMode: false,
   autoStart: false,
+};
+
+const DEFAULT_LEARNING_SETTINGS: LearningSettings = {
+  autoCreateNewWeek: true,
+  weekStartDay: 1, // ISO standard (Monday)
+};
+
+const DEFAULT_LEARNING_STATISTICS: LearningStatistics = {
+  totalTopics: 0,
+  totalBlogPosts: 0,
+  totalWeeks: 0,
+  currentWeekStreak: 0,
+  longestWeekStreak: 0,
+  topicsByMonth: {},
+  topicsByWeek: {},
 };
 
 // Singleton store instance
@@ -114,6 +144,79 @@ export const storage = {
     } catch (error) {
       console.error("Error writing all data to storage:", error);
       throw error; // Re-throw to allow caller to handle
+    }
+  },
+
+  // ==========================================
+  // Learning Tracker Storage Methods
+  // ==========================================
+
+  // Learning - Specific getters
+  async getCurrentWeekTopics(): Promise<LearningTopic[]> {
+    return this.get<LearningTopic[]>(STORAGE_KEYS.LEARNING_CURRENT_WEEK, []);
+  },
+
+  async getLearningHistory(): Promise<LearningHistory> {
+    return this.get<LearningHistory>(STORAGE_KEYS.LEARNING_HISTORY, {});
+  },
+
+  async getLastWeekId(): Promise<string> {
+    return this.get<string>(STORAGE_KEYS.LEARNING_LAST_WEEK, getCurrentWeekId());
+  },
+
+  async getLearningSettings(): Promise<LearningSettings> {
+    return this.get<LearningSettings>(
+      STORAGE_KEYS.LEARNING_SETTINGS,
+      DEFAULT_LEARNING_SETTINGS
+    );
+  },
+
+  async getLearningStatistics(): Promise<LearningStatistics> {
+    return this.get<LearningStatistics>(
+      STORAGE_KEYS.LEARNING_STATISTICS,
+      DEFAULT_LEARNING_STATISTICS
+    );
+  },
+
+  // Learning - Specific setters
+  async setCurrentWeekTopics(topics: LearningTopic[]): Promise<void> {
+    await this.set(STORAGE_KEYS.LEARNING_CURRENT_WEEK, topics);
+  },
+
+  async setLearningHistory(history: LearningHistory): Promise<void> {
+    await this.set(STORAGE_KEYS.LEARNING_HISTORY, history);
+  },
+
+  async setLastWeekId(weekId: string): Promise<void> {
+    await this.set(STORAGE_KEYS.LEARNING_LAST_WEEK, weekId);
+  },
+
+  async setLearningSettings(settings: LearningSettings): Promise<void> {
+    await this.set(STORAGE_KEYS.LEARNING_SETTINGS, settings);
+  },
+
+  async setLearningStatistics(statistics: LearningStatistics): Promise<void> {
+    await this.set(STORAGE_KEYS.LEARNING_STATISTICS, statistics);
+  },
+
+  // Batch operation for learning data
+  async setAllLearningData(data: {
+    currentWeekTopics: LearningTopic[];
+    learningHistory: LearningHistory;
+    lastWeekId: string;
+    learningSettings: LearningSettings;
+    learningStatistics: LearningStatistics;
+  }): Promise<void> {
+    try {
+      const store = await getStore();
+      await store.set(STORAGE_KEYS.LEARNING_CURRENT_WEEK, data.currentWeekTopics);
+      await store.set(STORAGE_KEYS.LEARNING_HISTORY, data.learningHistory);
+      await store.set(STORAGE_KEYS.LEARNING_LAST_WEEK, data.lastWeekId);
+      await store.set(STORAGE_KEYS.LEARNING_SETTINGS, data.learningSettings);
+      await store.save();
+    } catch (error) {
+      console.error("Error writing all learning data to storage:", error);
+      throw error;
     }
   },
 };

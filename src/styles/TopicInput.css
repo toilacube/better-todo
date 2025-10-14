@@ -1,0 +1,85 @@
+/* Topic Input Styles - Learning-Focused Design */
+.topic-input {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md);
+  background: var(--color-subtle);
+  border: 2px solid var(--color-tertiary);
+  border-radius: var(--radius-lg);
+  position: relative;
+  transition: all var(--duration-normal) var(--ease-smooth);
+  max-width: 1200px;
+  width: 100%;
+}
+
+.topic-input:hover {
+  border-color: var(--color-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, var(--opacity-ghost));
+}
+
+.topic-input:focus-within {
+  border-color: var(--color-fg);
+  background: var(--color-bg);
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, var(--opacity-ghost));
+}
+
+.topic-input::before {
+  font-size: var(--text-heading);
+  opacity: var(--opacity-subtle);
+  flex-shrink: 0;
+  transition: all var(--duration-fast) var(--ease-spring-soft);
+}
+
+.topic-input:focus-within::before {
+  opacity: var(--opacity-full);
+  transform: scale(1.1);
+}
+
+.topic-input-field {
+  flex: 1;
+  background: none;
+  border: none;
+  font-size: var(--text-body-large);
+  color: var(--color-fg);
+  outline: none;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  padding: 0;
+  letter-spacing: var(--ls-normal);
+}
+
+.topic-input-field::placeholder {
+  color: var(--color-secondary);
+  opacity: var(--opacity-active);
+  font-weight: 400;
+}
+
+.topic-input-button {
+  background: var(--color-fg);
+  border: none;
+  cursor: pointer;
+  color: var(--color-bg);
+  padding: var(--space-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+  transition: all var(--duration-fast) var(--ease-spring-snappy);
+}
+
+.topic-input-button:hover {
+  transform: scale(1.15) rotate(90deg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, var(--opacity-muted));
+}
+
+.topic-input-button:active {
+  transform: scale(0.95) rotate(90deg);
+}
+
+/* Dark mode handled by CSS variables */

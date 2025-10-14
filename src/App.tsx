@@ -7,6 +7,7 @@ import { TaskItem } from "./components/TaskItem";
 import { Settings } from "./components/Settings";
 import { Statistics } from "./components/Statistics";
 import { Debug } from "./components/Debug";
+import { LearningView } from "./components/LearningView";
 import { useTasks } from "./hooks/useTasks";
 import { useHistory } from "./hooks/useHistory";
 import { useSettings } from "./hooks/useSettings";
@@ -149,12 +150,22 @@ function App() {
         >
           Must-Do
         </button>
+        <button
+          onClick={() => setActiveTab("learning")}
+          className={`tab ${activeTab === "learning" ? "active" : ""}`}
+        >
+          Learning
+        </button>
       </motion.div>
 
       <main className="main-content">
-        <div className="toolbar">
-          <TaskInput onAdd={currentTasks.addTask} />
-          {currentTasks.tasks.length > 0 && (
+        {activeTab === "learning" ? (
+          <LearningView />
+        ) : (
+          <>
+            <div className="toolbar">
+              <TaskInput onAdd={currentTasks.addTask} />
+              {currentTasks.tasks.length > 0 && (
             <div className="expand-collapse-buttons">
               <motion.button
                 onClick={currentTasks.toggleExpandCollapse}
@@ -237,6 +248,8 @@ function App() {
             )}
           </motion.div>
         </AnimatePresence>
+          </>
+        )}
       </main>
 
       <Settings

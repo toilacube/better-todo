@@ -1,8 +1,18 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, BookOpen } from "lucide-react";
 import { storage } from "../store/storage";
-import { Task, TaskHistory, Settings } from "../types";
+import {
+  Task,
+  TaskHistory,
+  Settings,
+  LearningTopic,
+  LearningHistory,
+  LearningSettings,
+  LearningStatistics,
+} from "../types";
 import { useNotification } from "../hooks/useNotification";
+import { getCurrentWeekId, getWeekDisplayString } from "../utils/weekHelpers";
+import { countTopics } from "../utils/learningHelpers";
 import "../styles/Debug.css";
 
 interface DebugProps {
@@ -15,6 +25,12 @@ interface StoreData {
   taskHistory: TaskHistory;
   lastDate: string;
   settings: Settings;
+  // Learning data
+  currentWeekTopics: LearningTopic[];
+  learningHistory: LearningHistory;
+  lastWeekId: string;
+  learningSettings: LearningSettings;
+  learningStatistics: LearningStatistics;
 }
 
 export function Debug({ onBack }: DebugProps = {}) {
@@ -27,6 +43,12 @@ export function Debug({ onBack }: DebugProps = {}) {
     taskHistory: false,
     settings: true,
     general: true,
+    // Learning sections
+    learningGeneral: true,
+    currentWeekTopics: true,
+    learningHistory: false,
+    learningSettings: true,
+    learningStatistics: false,
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editedJson, setEditedJson] = useState<string>("");
@@ -34,7 +56,9 @@ export function Debug({ onBack }: DebugProps = {}) {
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
-  const [notificationTestResult, setNotificationTestResult] = useState<string | null>(null);
+  const [notificationTestResult, setNotificationTestResult] = useState<
+    string | null
+  >(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -49,14 +73,29 @@ export function Debug({ onBack }: DebugProps = {}) {
       setLoading(true);
       setError(null);
 
-      const [todayTasks, mustDoTasks, taskHistory, lastDate, settings] =
-        await Promise.all([
-          storage.getTodayTasks(),
-          storage.getMustDoTasks(),
-          storage.getTaskHistory(),
-          storage.getLastDate(),
-          storage.getSettings(),
-        ]);
+      const [
+        todayTasks,
+        mustDoTasks,
+        taskHistory,
+        lastDate,
+        settings,
+        currentWeekTopics,
+        learningHistory,
+        lastWeekId,
+        learningSettings,
+        learningStatistics,
+      ] = await Promise.all([
+        storage.getTodayTasks(),
+        storage.getMustDoTasks(),
+        storage.getTaskHistory(),
+        storage.getLastDate(),
+        storage.getSettings(),
+        storage.getCurrentWeekTopics(),
+        storage.getLearningHistory(),
+        storage.getLastWeekId(),
+        storage.getLearningSettings(),
+        storage.getLearningStatistics(),
+      ]);
 
       setStoreData({
         todayTasks,
@@ -64,6 +103,11 @@ export function Debug({ onBack }: DebugProps = {}) {
         taskHistory,
         lastDate,
         settings,
+        currentWeekTopics,
+        learningHistory,
+        lastWeekId,
+        learningSettings,
+        learningStatistics,
       });
     } catch (err) {
       setError(
@@ -100,6 +144,11 @@ export function Debug({ onBack }: DebugProps = {}) {
       "taskHistory",
       "lastDate",
       "settings",
+      "currentWeekTopics",
+      "learningHistory",
+      "lastWeekId",
+      "learningSettings",
+      "learningStatistics",
     ];
     requiredFields.forEach((field) => {
       if (!(field in data)) {
@@ -171,6 +220,60 @@ export function Debug({ onBack }: DebugProps = {}) {
       }
     }
 
+    // Validate Learning fields
+    // Validate currentWeekTopics
+    if (data.currentWeekTopics && !Array.isArray(data.currentWeekTopics)) {
+      errors.push("currentWeekTopics must be an array");
+    } else if (data.currentWeekTopics) {
+      data.currentWeekTopics.forEach((topic: any, index: number) => {
+        if (!validateLearningTopic(topic)) {
+          errors.push(`Invalid learning topic at currentWeekTopics[${index}]`);
+        }
+      });
+    }
+
+    // Validate learningHistory
+    if (data.learningHistory && typeof data.learningHistory !== "object") {
+      errors.push("learningHistory must be an object");
+    }
+
+    // Validate lastWeekId
+    if (data.lastWeekId && typeof data.lastWeekId !== "string") {
+      errors.push("lastWeekId must be a string");
+    }
+
+    // Validate learningSettings
+    if (data.learningSettings) {
+      if (typeof data.learningSettings !== "object") {
+        errors.push("learningSettings must be an object");
+      } else {
+        const learningSettingsFields = [
+          "autoCreateNewWeek",
+          "weekStartDay",
+        ];
+        learningSettingsFields.forEach((field) => {
+          if (!(field in data.learningSettings)) {
+            errors.push(`Missing required learningSettings field: ${field}`);
+          }
+        });
+
+        if (typeof data.learningSettings.autoCreateNewWeek !== "boolean") {
+          errors.push("learningSettings.autoCreateNewWeek must be a boolean");
+        }
+        if (typeof data.learningSettings.weekStartDay !== "number") {
+          errors.push("learningSettings.weekStartDay must be a number");
+        }
+      }
+    }
+
+    // Validate learningStatistics
+    if (
+      data.learningStatistics &&
+      typeof data.learningStatistics !== "object"
+    ) {
+      errors.push("learningStatistics must be an object");
+    }
+
     return errors;
   };
 
@@ -183,6 +286,25 @@ export function Debug({ onBack }: DebugProps = {}) {
       typeof task.completed === "boolean" &&
       Array.isArray(task.subtasks) &&
       typeof task.expanded === "boolean"
+    );
+  };
+
+  const validateLearningTopic = (topic: any): boolean => {
+    return (
+      topic &&
+      typeof topic === "object" &&
+      typeof topic.id === "number" &&
+      typeof topic.title === "string" &&
+      typeof topic.notes === "string" &&
+      Array.isArray(topic.referenceLinks) &&
+      Array.isArray(topic.subtopics) &&
+      typeof topic.expanded === "boolean" &&
+      typeof topic.completed === "boolean" &&
+      topic.blogPost &&
+      typeof topic.blogPost === "object" &&
+      typeof topic.blogPost.written === "boolean" &&
+      typeof topic.createdAt === "string" &&
+      typeof topic.updatedAt === "string"
     );
   };
 
@@ -250,8 +372,22 @@ export function Debug({ onBack }: DebugProps = {}) {
       setValidationErrors([]);
       setSaveSuccess(false);
 
-      // Save all data atomically using batch operation
-      await storage.setAll(parsedData);
+      // Save all data atomically using batch operations
+      await storage.setAll({
+        todayTasks: parsedData.todayTasks,
+        mustDoTasks: parsedData.mustDoTasks,
+        taskHistory: parsedData.taskHistory,
+        lastDate: parsedData.lastDate,
+        settings: parsedData.settings,
+      });
+
+      await storage.setAllLearningData({
+        currentWeekTopics: parsedData.currentWeekTopics,
+        learningHistory: parsedData.learningHistory,
+        lastWeekId: parsedData.lastWeekId,
+        learningSettings: parsedData.learningSettings,
+        learningStatistics: parsedData.learningStatistics,
+      });
 
       // Reload data and exit editing mode
       await loadStoreData();
@@ -273,27 +409,29 @@ export function Debug({ onBack }: DebugProps = {}) {
     }
   };
 
-//   const exportJson = () => {
-//     if (!storeData) return;
+  //   const exportJson = () => {
+  //     if (!storeData) return;
 
-//     const dataStr = formatJson(storeData);
-//     const dataBlob = new Blob([dataStr], { type: "application/json" });
-//     const url = URL.createObjectURL(dataBlob);
-//     const link = document.createElement("a");
-//     link.href = url;
-//     link.download = `better-todo-data-${new Date().toISOString().split("T")[0]}.json`;
-//     document.body.appendChild(link);
-//     link.click();
-//     document.body.removeChild(link);
-//     URL.revokeObjectURL(url);
-//   };
+  //     const dataStr = formatJson(storeData);
+  //     const dataBlob = new Blob([dataStr], { type: "application/json" });
+  //     const url = URL.createObjectURL(dataBlob);
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  //     link.download = `better-todo-data-${new Date().toISOString().split("T")[0]}.json`;
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //     URL.revokeObjectURL(url);
+  //   };
 
   const testNotification = async () => {
     try {
       setNotificationTestResult(null);
 
       if (!permissionGranted) {
-        setNotificationTestResult("Notification permission not granted. Please enable notifications in your system settings.");
+        setNotificationTestResult(
+          "Notification permission not granted. Please enable notifications in your system settings."
+        );
         return;
       }
 
@@ -336,6 +474,39 @@ export function Debug({ onBack }: DebugProps = {}) {
         {task.subtasks.length > 0 && (
           <div className="debug-subtasks">
             {task.subtasks.map((subtask) => renderTask(subtask, level + 1))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderLearningTopic = (topic: LearningTopic, level = 0) => {
+    return (
+      <div key={topic.id} className={`debug-task debug-task-level-${level}`}>
+        <div className="debug-task-info">
+          
+          <span className="debug-task-text">{topic.title}</span>
+          {topic.blogPost.written && (
+            <span className="debug-blog-badge">
+              <BookOpen size={14} /> Blog
+            </span>
+          )}
+          {topic.referenceLinks.length > 0 && (
+            <span className="debug-reference-count">
+              ({topic.referenceLinks.length} refs)
+            </span>
+          )}
+          {topic.subtopics.length > 0 && (
+            <span className="debug-subtask-count">
+              ({topic.subtopics.length} subtopics)
+            </span>
+          )}
+        </div>
+        {topic.subtopics.length > 0 && (
+          <div className="debug-subtasks">
+            {topic.subtopics.map((subtopic) =>
+              renderLearningTopic(subtopic, level + 1)
+            )}
           </div>
         )}
       </div>
@@ -426,6 +597,14 @@ export function Debug({ onBack }: DebugProps = {}) {
               <div className="debug-info-item">
                 <strong>History Entries:</strong>
                 <span>{Object.keys(storeData.taskHistory).length}</span>
+              </div>
+              <div className="debug-info-item">
+                <strong>Learning Topics (Current Week):</strong>
+                <span>{storeData.currentWeekTopics.length}</span>
+              </div>
+              <div className="debug-info-item">
+                <strong>Learning History Weeks:</strong>
+                <span>{Object.keys(storeData.learningHistory).length}</span>
               </div>
             </div>
           </div>
@@ -625,6 +804,240 @@ export function Debug({ onBack }: DebugProps = {}) {
         )}
       </div>
 
+      {/* Learning General Information */}
+      <div className="debug-section">
+        <div
+          className="debug-section-header"
+          onClick={() => toggleSection("learningGeneral")}
+        >
+          <span
+            className={`debug-toggle ${
+              expandedSections.learningGeneral ? "expanded" : ""
+            }`}
+          >
+            ▶
+          </span>
+          <h3>Learning General Information</h3>
+        </div>
+        {expandedSections.learningGeneral && (
+          <div className="debug-section-content">
+            <div className="debug-info-grid">
+              <div className="debug-info-item">
+                <strong>Current Week ID:</strong>
+                <span>{getCurrentWeekId()}</span>
+              </div>
+              <div className="debug-info-item">
+                <strong>Current Week Display:</strong>
+                <span>{getWeekDisplayString(getCurrentWeekId())}</span>
+              </div>
+              <div className="debug-info-item">
+                <strong>Last Week ID:</strong>
+                <span>{storeData.lastWeekId}</span>
+              </div>
+              <div className="debug-info-item">
+                <strong>Current Topics Count:</strong>
+                <span>{storeData.currentWeekTopics.length}</span>
+              </div>
+              <div className="debug-info-item">
+                <strong>Total Topics:</strong>
+                <span>
+                  {countTopics(storeData.currentWeekTopics).total}
+                </span>
+              </div>
+              <div className="debug-info-item">
+                <strong>Blog Posts Written:</strong>
+                <span>
+                  {storeData.currentWeekTopics.reduce((count, topic) => {
+                    return count + (topic.blogPost.written ? 1 : 0);
+                  }, 0)}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Current Week Learning Topics */}
+      <div className="debug-section">
+        <div
+          className="debug-section-header"
+          onClick={() => toggleSection("currentWeekTopics")}
+        >
+          <span
+            className={`debug-toggle ${
+              expandedSections.currentWeekTopics ? "expanded" : ""
+            }`}
+          >
+            ▶
+          </span>
+          <h3>Current Week Topics ({storeData.currentWeekTopics.length})</h3>
+        </div>
+        {expandedSections.currentWeekTopics && (
+          <div className="debug-section-content">
+            {storeData.currentWeekTopics.length === 0 ? (
+              <div className="debug-empty">
+                No learning topics for current week
+              </div>
+            ) : (
+              <div className="debug-tasks-list">
+                {storeData.currentWeekTopics.map((topic) =>
+                  renderLearningTopic(topic)
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Learning Settings */}
+      <div className="debug-section">
+        <div
+          className="debug-section-header"
+          onClick={() => toggleSection("learningSettings")}
+        >
+          <span
+            className={`debug-toggle ${
+              expandedSections.learningSettings ? "expanded" : ""
+            }`}
+          >
+            ▶
+          </span>
+          <h3>Learning Settings</h3>
+        </div>
+        {expandedSections.learningSettings && (
+          <div className="debug-section-content">
+            <div className="debug-settings-grid">
+              <div className="debug-setting-item">
+                <strong>Auto Create New Week:</strong>
+                <span
+                  className={
+                    storeData.learningSettings.autoCreateNewWeek
+                      ? "enabled"
+                      : "disabled"
+                  }
+                >
+                  {storeData.learningSettings.autoCreateNewWeek
+                    ? "Enabled"
+                    : "Disabled"}
+                </span>
+              </div>
+              <div className="debug-setting-item">
+              <div className="debug-setting-item">
+                <strong>Week Start Day:</strong>
+                <span>
+                  {storeData.learningSettings.weekStartDay} (Monday = 1)
+                </span>
+              </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Learning Statistics */}
+      <div className="debug-section">
+        <div
+          className="debug-section-header"
+          onClick={() => toggleSection("learningStatistics")}
+        >
+          <span
+            className={`debug-toggle ${
+              expandedSections.learningStatistics ? "expanded" : ""
+            }`}
+          >
+            ▶
+          </span>
+          <h3>Learning Statistics</h3>
+        </div>
+        {expandedSections.learningStatistics && (
+          <div className="debug-section-content">
+            <div className="debug-settings-grid">
+              <div className="debug-setting-item">
+                <strong>Total Topics:</strong>
+                <span>{storeData.learningStatistics.totalTopics}</span>
+              </div>
+              <div className="debug-setting-item">
+                <strong>Total Blog Posts:</strong>
+                <span>{storeData.learningStatistics.totalBlogPosts}</span>
+              </div>
+              <div className="debug-setting-item">
+                <strong>Total Weeks:</strong>
+                <span>{storeData.learningStatistics.totalWeeks}</span>
+              </div>
+              <div className="debug-setting-item">
+                <strong>Current Week Streak:</strong>
+                <span>{storeData.learningStatistics.currentWeekStreak}</span>
+              </div>
+              <div className="debug-setting-item">
+                <strong>Longest Week Streak:</strong>
+                <span>{storeData.learningStatistics.longestWeekStreak}</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Learning History */}
+      <div className="debug-section">
+        <div
+          className="debug-section-header"
+          onClick={() => toggleSection("learningHistory")}
+        >
+          <span
+            className={`debug-toggle ${
+              expandedSections.learningHistory ? "expanded" : ""
+            }`}
+          >
+            ▶
+          </span>
+          <h3>
+            Learning History ({Object.keys(storeData.learningHistory).length}{" "}
+            weeks)
+          </h3>
+        </div>
+        {expandedSections.learningHistory && (
+          <div className="debug-section-content">
+            {Object.keys(storeData.learningHistory).length === 0 ? (
+              <div className="debug-empty">No learning history entries</div>
+            ) : (
+              <div className="debug-history">
+                {Object.entries(storeData.learningHistory)
+                  .sort(([a], [b]) => b.localeCompare(a)) // Sort by week ID desc
+                  .map(([weekId, entry]) => (
+                    <div key={weekId} className="debug-history-entry">
+                      <div className="debug-history-header">
+                        <strong>{getWeekDisplayString(weekId)}</strong>
+                        <span className="debug-history-stats">
+                          {entry.topics.reduce(
+                            (count, topic) =>
+                              count + (topic.blogPost.written ? 1 : 0),
+                            0
+                          ) > 0 && (
+                            <span className="debug-blog-count">
+                              ,{" "}
+                              {entry.topics.reduce(
+                                (count, topic) =>
+                                  count + (topic.blogPost.written ? 1 : 0),
+                                0
+                              )}{" "}
+                              blog posts
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="debug-history-tasks">
+                        {entry.topics.map((topic) =>
+                          renderLearningTopic(topic)
+                        )}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* JSON Editor */}
       <div className="debug-section debug-json-section">
         <div className="debug-section-header debug-json-header">
@@ -638,10 +1051,7 @@ export function Debug({ onBack }: DebugProps = {}) {
                 >
                   Export JSON
                 </button> */}
-                <button
-                  onClick={startEditing}
-                  className="debug-edit-btn"
-                >
+                <button onClick={startEditing} className="debug-edit-btn">
                   Edit JSON
                 </button>
               </>
@@ -720,16 +1130,10 @@ export function Debug({ onBack }: DebugProps = {}) {
               Are you sure you want to continue?
             </p>
             <div className="debug-confirmation-buttons">
-              <button
-                onClick={cancelSave}
-                className="debug-confirm-cancel-btn"
-              >
+              <button onClick={cancelSave} className="debug-confirm-cancel-btn">
                 Cancel
               </button>
-              <button
-                onClick={confirmSave}
-                className="debug-confirm-save-btn"
-              >
+              <button onClick={confirmSave} className="debug-confirm-save-btn">
                 Yes, Replace Data
               </button>
             </div>
