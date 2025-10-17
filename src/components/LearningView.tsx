@@ -9,7 +9,6 @@ import { storage } from "../store/storage";
 import { TopicInput } from "./TopicInput";
 import { TopicItem } from "./TopicItem";
 import { getCurrentWeekId, isNewWeek, getWeekDisplayString } from "../utils/weekHelpers";
-import { countTopics } from "../utils/learningHelpers";
 import "../styles/LearningView.css";
 
 interface LearningViewProps {
@@ -217,7 +216,6 @@ interface WeekHistoryEntryProps {
 }
 
 function WeekHistoryEntry({ entry, isExpanded, onToggleExpand, index }: WeekHistoryEntryProps) {
-  const { total } = entry;
   const blogPostCount = entry.topics.reduce((count, topic) => {
     return count + (topic.blogPost.written ? 1 : 0);
   }, 0);
@@ -288,7 +286,6 @@ interface HistoryTopicItemProps {
 function HistoryTopicItem({ topic, level }: HistoryTopicItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const hasSubtopics = topic.subtopics && topic.subtopics.length > 0;
-  const { total: totalCount } = countTopics(topic.subtopics || []);
 
   return (
     <div className="history-topic-item" style={{ marginLeft: level > 0 ? '24px' : '0' }}>
