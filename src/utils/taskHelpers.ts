@@ -12,6 +12,7 @@ export const createTask = (text: string): Task => ({
   completed: false,
   subtasks: [],
   expanded: false,
+  created_at: new Date().toISOString(),
 });
 
 // Count total and completed tasks (recursive)
@@ -56,20 +57,45 @@ export const toggleTaskCompletion = (
   taskId: number,
   newStatus?: boolean
 ): Task[] => {
+  const now = new Date().toISOString();
+
   const toggleRecursive = (taskList: Task[]): Task[] => {
     return taskList.map((task) => {
       if (task.id === taskId) {
         const completed = newStatus !== undefined ? newStatus : !task.completed;
 
-        // If checking parent, check all subtasks
+        // If checking parent, check all subtasks and set their finished_at
         const updatedSubtasks = completed
-          ? task.subtasks.map((st) => ({ ...st, completed: true }))
-          : task.subtasks;
+          ? task.subtasks.map((st) => ({
+              ...st,
+              completed: true,
+              finished_at: st.finished_at || now, // Set finished_at if not already set
+            }))
+          : task.subtasks.map((st) => ({
+              ...st,
+              finished_at: undefined, // Clear finished_at when unchecking
+            }));
+
+        // Determine finished_at for this task
+        let finished_at: string | undefined = task.finished_at;
+        if (completed) {
+          // Only set finished_at if task is completed AND all subtasks are completed
+          const allSubtasksCompleted =
+            updatedSubtasks.length === 0 ||
+            updatedSubtasks.every((st) => st.completed);
+          if (allSubtasksCompleted) {
+            finished_at = now;
+          }
+        } else {
+          // Clear finished_at when unchecking
+          finished_at = undefined;
+        }
 
         return {
           ...task,
           completed,
           subtasks: updatedSubtasks,
+          finished_at,
         };
       }
 
@@ -82,10 +108,22 @@ export const toggleTaskCompletion = (
           updatedSubtasks.length > 0 &&
           updatedSubtasks.every((st) => st.completed);
 
+        const completed = allSubtasksCompleted || task.completed;
+
+        // Set finished_at if task is now fully completed
+        let finished_at = task.finished_at;
+        if (completed && allSubtasksCompleted && !task.finished_at) {
+          finished_at = now;
+        } else if (!completed || !allSubtasksCompleted) {
+          // Clear finished_at if task is no longer fully completed
+          finished_at = undefined;
+        }
+
         return {
           ...task,
           subtasks: updatedSubtasks,
-          completed: allSubtasksCompleted || task.completed,
+          completed,
+          finished_at,
         };
       }
 
@@ -247,4 +285,23 @@ export const updateTaskText = (
   };
 
   return updateRecursive(tasks);
+};
+
+// Check if task is fully completed (task + all subtasks are completed)
+export const isTaskFullyCompleted = (task: Task): boolean => {
+  if (!task.completed) return false;
+
+  if (task.subtasks.length === 0) return true;
+
+  return task.subtasks.every((subtask) => isTaskFullyCompleted(subtask));
+};
+
+// Calculate task duration in milliseconds (returns null if not finished)
+export const calculateTaskDuration = (task: Task): number | null => {
+  if (!task.created_at || !task.finished_at) return null;
+
+  const createdTime = new Date(task.created_at).getTime();
+  const finishedTime = new Date(task.finished_at).getTime();
+
+  return finishedTime - createdTime;
 };

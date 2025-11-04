@@ -6,6 +6,8 @@ export interface Task {
   completed: boolean;
   subtasks: Task[];
   expanded: boolean;
+  created_at: string; // ISO 8601 timestamp
+  finished_at?: string; // ISO 8601 timestamp, set when task and all subtasks are completed
 }
 
 export interface HistoryEntry {
@@ -24,6 +26,12 @@ export interface Settings {
 
 export interface TaskHistory {
   [dateString: string]: HistoryEntry;
+}
+
+export interface ExportOptions {
+  status: "all" | "completed" | "incomplete";
+  dateRange: 5 | 7 | 14 | 30 | "all";
+  includeSubtasks: boolean;
 }
 
 export type TabType = "today" | "mustDo" | "learning";

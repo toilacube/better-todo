@@ -10,6 +10,7 @@ export const createMockTask = (overrides: Partial<Task> = {}): Task => ({
   completed: false,
   subtasks: [],
   expanded: false,
+  created_at: new Date().toISOString(),
   ...overrides,
 });
 
@@ -21,12 +22,14 @@ export const createMockTaskWithSubtasks = (
   text: `Parent task ${parentId}`,
   completed: false,
   expanded: true,
+  created_at: new Date().toISOString(),
   subtasks: Array.from({ length: subtaskCount }, (_, i) => ({
     id: parentId * 100 + i + 1,
     text: `Subtask ${i + 1}`,
     completed: false,
     subtasks: [],
     expanded: false,
+    created_at: new Date().toISOString(),
   })),
 });
 
@@ -75,12 +78,14 @@ export const createComplexTaskStructure = (): Task[] => [
     text: "Complex project",
     completed: false,
     expanded: true,
+    created_at: new Date().toISOString(),
     subtasks: [
       {
         id: 2,
         text: "Phase 1",
         completed: true,
         expanded: true,
+        created_at: new Date().toISOString(),
         subtasks: [
           {
             id: 3,
@@ -88,6 +93,7 @@ export const createComplexTaskStructure = (): Task[] => [
             completed: true,
             subtasks: [],
             expanded: false,
+            created_at: new Date().toISOString(),
           },
           {
             id: 4,
@@ -95,6 +101,7 @@ export const createComplexTaskStructure = (): Task[] => [
             completed: true,
             subtasks: [],
             expanded: false,
+            created_at: new Date().toISOString(),
           },
         ],
       },
@@ -103,6 +110,7 @@ export const createComplexTaskStructure = (): Task[] => [
         text: "Phase 2",
         completed: false,
         expanded: false,
+        created_at: new Date().toISOString(),
         subtasks: [
           {
             id: 6,
@@ -110,6 +118,7 @@ export const createComplexTaskStructure = (): Task[] => [
             completed: false,
             subtasks: [],
             expanded: false,
+            created_at: new Date().toISOString(),
           },
         ],
       },
@@ -121,6 +130,7 @@ export const createComplexTaskStructure = (): Task[] => [
     completed: true,
     subtasks: [],
     expanded: false,
+    created_at: new Date().toISOString(),
   },
 ];
 
@@ -136,11 +146,17 @@ export const expectTaskStructure = (task: any) => {
   expect(task).toHaveProperty("completed");
   expect(task).toHaveProperty("subtasks");
   expect(task).toHaveProperty("expanded");
+  expect(task).toHaveProperty("created_at");
   expect(typeof task.id).toBe("number");
   expect(typeof task.text).toBe("string");
   expect(typeof task.completed).toBe("boolean");
   expect(Array.isArray(task.subtasks)).toBe(true);
   expect(typeof task.expanded).toBe("boolean");
+  expect(typeof task.created_at).toBe("string");
+  // finished_at is optional, only check if it exists
+  if (task.finished_at !== undefined) {
+    expect(typeof task.finished_at).toBe("string");
+  }
 };
 
 export const expectSettingsStructure = (settings: any) => {

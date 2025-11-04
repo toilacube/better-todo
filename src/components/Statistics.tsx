@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Download, X } from "lucide-react";
 import { motion } from "framer-motion";
-import { HistoryEntry, Task } from "../types";
+import { HistoryEntry, Task, TaskHistory, ExportOptions } from "../types";
 import { formatDate } from "../utils/dateHelpers";
-import { countTasks } from "../utils/taskHelpers";
+import { countTasks, calculateTaskDuration } from "../utils/taskHelpers";
+import { generateMarkdownExport, downloadMarkdownFile } from "../utils/exportHelpers";
 import {
   LineChart,
   Line,
@@ -22,6 +23,7 @@ import {
 import { TaskItem } from "./TaskItem";
 
 type TimePeriod = 7 | 30 | 90 | "all";
+type TaskFilter = "all" | "completed" | "incomplete";
 
 interface StatisticsProps {
   history: HistoryEntry[];
@@ -37,6 +39,13 @@ export const Statistics: React.FC<StatisticsProps> = ({
   onBack,
 }) => {
   const [timePeriod, setTimePeriod] = useState<TimePeriod>(30);
+  const [taskFilter, setTaskFilter] = useState<TaskFilter>("all");
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [exportOptions, setExportOptions] = useState<ExportOptions>({
+    status: "all",
+    dateRange: 5,
+    includeSubtasks: true,
+  });
 
   // Filter history based on selected time period
   const getFilteredHistory = () => {
@@ -46,7 +55,19 @@ export const Statistics: React.FC<StatisticsProps> = ({
     return history.slice(0, timePeriod);
   };
 
-  const filteredHistory = getFilteredHistory();
+  // Filter tasks by completion status
+  const filterTasksByCompletion = (tasks: Task[]): Task[] => {
+    if (taskFilter === "all") return tasks;
+    if (taskFilter === "completed") {
+      return tasks.filter((task) => task.completed);
+    }
+    return tasks.filter((task) => !task.completed);
+  };
+
+  const filteredHistory = getFilteredHistory().map((entry) => ({
+    ...entry,
+    tasks: filterTasksByCompletion(entry.tasks),
+  }));
 
   // Calculate summary statistics from filtered history
   const totalStats = filteredHistory.reduce(
@@ -109,6 +130,23 @@ export const Statistics: React.FC<StatisticsProps> = ({
     incomplete: "#F59E0B",
   };
 
+  // Export handler
+  const handleExport = () => {
+    // Reconstruct TaskHistory object from history array
+    const taskHistory: TaskHistory = {};
+    history.forEach((entry) => {
+      taskHistory[entry.date] = entry;
+    });
+
+    const markdown = generateMarkdownExport(
+      taskHistory,
+      todayTasks,
+      exportOptions
+    );
+    downloadMarkdownFile(markdown);
+    setIsExportModalOpen(false);
+  };
+
   return (
     <motion.div
       className="statistics-page"
@@ -133,33 +171,75 @@ export const Statistics: React.FC<StatisticsProps> = ({
         <div className="statistics-header-row">
           <h1 className="statistics-title">Statistics</h1>
 
-          {/* Time Period Selector */}
-          <div className="time-period-selector">
-            <button
-              className={`period-button ${timePeriod === 7 ? "active" : ""}`}
-              onClick={() => setTimePeriod(7)}
+          <div className="header-actions">
+            {/* Time Period Selector */}
+            <div className="time-period-selector">
+              <button
+                className={`period-button ${timePeriod === 7 ? "active" : ""}`}
+                onClick={() => setTimePeriod(7)}
+              >
+                7 Days
+              </button>
+              <button
+                className={`period-button ${timePeriod === 30 ? "active" : ""}`}
+                onClick={() => setTimePeriod(30)}
+              >
+                30 Days
+              </button>
+              <button
+                className={`period-button ${timePeriod === 90 ? "active" : ""}`}
+                onClick={() => setTimePeriod(90)}
+              >
+                90 Days
+              </button>
+              <button
+                className={`period-button ${
+                  timePeriod === "all" ? "active" : ""
+                }`}
+                onClick={() => setTimePeriod("all")}
+              >
+                All Time
+              </button>
+            </div>
+
+            {/* Export Button */}
+            <motion.button
+              className="export-button"
+              onClick={() => setIsExportModalOpen(true)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              7 Days
+              <Download size={18} strokeWidth={1.5} />
+              <span>Export</span>
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Task Filter */}
+        <div className="task-filter-row">
+          <span className="filter-label">Show:</span>
+          <div className="task-filter-buttons">
+            <button
+              className={`filter-button ${taskFilter === "all" ? "active" : ""}`}
+              onClick={() => setTaskFilter("all")}
+            >
+              All Tasks
             </button>
             <button
-              className={`period-button ${timePeriod === 30 ? "active" : ""}`}
-              onClick={() => setTimePeriod(30)}
-            >
-              30 Days
-            </button>
-            <button
-              className={`period-button ${timePeriod === 90 ? "active" : ""}`}
-              onClick={() => setTimePeriod(90)}
-            >
-              90 Days
-            </button>
-            <button
-              className={`period-button ${
-                timePeriod === "all" ? "active" : ""
+              className={`filter-button ${
+                taskFilter === "completed" ? "active" : ""
               }`}
-              onClick={() => setTimePeriod("all")}
+              onClick={() => setTaskFilter("completed")}
             >
-              All Time
+              Completed
+            </button>
+            <button
+              className={`filter-button ${
+                taskFilter === "incomplete" ? "active" : ""
+              }`}
+              onClick={() => setTaskFilter("incomplete")}
+            >
+              Incomplete
             </button>
           </div>
         </div>
@@ -328,21 +408,179 @@ export const Statistics: React.FC<StatisticsProps> = ({
               </div>
               <div className="history-tasks">
                 {entry.tasks.map((task) => (
-                  <TaskItem
-                    key={task.id}
-                    task={task}
-                    onToggle={() => {}}
-                    onDelete={() => {}}
-                    onAddSubtask={() => {}}
-                    onToggleExpand={() => {}}
-                    onUpdateText={() => {}}
-                  />
+                  <div key={task.id} className="history-task-wrapper">
+                    <TaskItem
+                      task={task}
+                      onToggle={() => {}}
+                      onDelete={() => {}}
+                      onAddSubtask={() => {}}
+                      onToggleExpand={() => {}}
+                      onUpdateText={() => {}}
+                    />
+                    <div className="task-metadata">
+                      {task.created_at && (
+                        <span className="task-timestamp">
+                          Created: {formatTimestamp(task.created_at)}
+                        </span>
+                      )}
+                      {task.finished_at && (
+                        <span className="task-timestamp">
+                          Finished: {formatTimestamp(task.finished_at)}
+                        </span>
+                      )}
+                      {task.finished_at && task.created_at && (
+                        <span className="task-duration">
+                          Duration: {formatDuration(calculateTaskDuration(task))}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Export Modal */}
+      {isExportModalOpen && (
+        <motion.div
+          className="modal-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setIsExportModalOpen(false)}
+        >
+          <motion.div
+            className="export-modal"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h2>Export Task History</h2>
+              <button
+                className="modal-close"
+                onClick={() => setIsExportModalOpen(false)}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="modal-body">
+              {/* Status Filter */}
+              <div className="export-option">
+                <label className="export-label">Task Status</label>
+                <div className="export-radio-group">
+                  <label className="export-radio">
+                    <input
+                      type="radio"
+                      name="status"
+                      value="all"
+                      checked={exportOptions.status === "all"}
+                      onChange={(e) =>
+                        setExportOptions({
+                          ...exportOptions,
+                          status: e.target.value as "all" | "completed" | "incomplete",
+                        })
+                      }
+                    />
+                    <span>All Tasks</span>
+                  </label>
+                  <label className="export-radio">
+                    <input
+                      type="radio"
+                      name="status"
+                      value="completed"
+                      checked={exportOptions.status === "completed"}
+                      onChange={(e) =>
+                        setExportOptions({
+                          ...exportOptions,
+                          status: e.target.value as "all" | "completed" | "incomplete",
+                        })
+                      }
+                    />
+                    <span>Completed Only</span>
+                  </label>
+                  <label className="export-radio">
+                    <input
+                      type="radio"
+                      name="status"
+                      value="incomplete"
+                      checked={exportOptions.status === "incomplete"}
+                      onChange={(e) =>
+                        setExportOptions({
+                          ...exportOptions,
+                          status: e.target.value as "all" | "completed" | "incomplete",
+                        })
+                      }
+                    />
+                    <span>Incomplete Only</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Date Range */}
+              <div className="export-option">
+                <label className="export-label">Date Range</label>
+                <select
+                  className="export-select"
+                  value={exportOptions.dateRange}
+                  onChange={(e) =>
+                    setExportOptions({
+                      ...exportOptions,
+                      dateRange: e.target.value === "all" ? "all" : parseInt(e.target.value) as 5 | 7 | 14 | 30,
+                    })
+                  }
+                >
+                  <option value="5">Last 5 days (default)</option>
+                  <option value="7">Last 7 days</option>
+                  <option value="14">Last 14 days</option>
+                  <option value="30">Last 30 days</option>
+                  <option value="all">All time</option>
+                </select>
+              </div>
+
+              {/* Include Subtasks */}
+              <div className="export-option">
+                <label className="export-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={exportOptions.includeSubtasks}
+                    onChange={(e) =>
+                      setExportOptions({
+                        ...exportOptions,
+                        includeSubtasks: e.target.checked,
+                      })
+                    }
+                  />
+                  <span>Include subtasks</span>
+                </label>
+                <p className="export-hint">
+                  Subtasks will be shown as indented bullet points under their parent tasks
+                </p>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button
+                className="modal-button modal-button-cancel"
+                onClick={() => setIsExportModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="modal-button modal-button-primary"
+                onClick={handleExport}
+              >
+                <Download size={16} />
+                Export as Markdown
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </motion.div>
   );
 };
@@ -350,6 +588,38 @@ export const Statistics: React.FC<StatisticsProps> = ({
 // Helper function for pie chart labels
 const renderCurrentStatusLabel = (entry: any) => {
   return `${entry.name}: ${entry.value}`;
+};
+
+// Format ISO timestamp to readable format
+const formatTimestamp = (isoString: string): string => {
+  const date = new Date(isoString);
+  return date.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+// Format duration in milliseconds to readable format
+const formatDuration = (milliseconds: number | null): string => {
+  if (!milliseconds) return "N/A";
+
+  const seconds = Math.floor(milliseconds / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (days > 0) {
+    return `${days}d ${hours % 24}h`;
+  }
+  if (hours > 0) {
+    return `${hours}h ${minutes % 60}m`;
+  }
+  if (minutes > 0) {
+    return `${minutes}m`;
+  }
+  return `${seconds}s`;
 };
 
 // Calculate streaks

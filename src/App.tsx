@@ -16,6 +16,7 @@ import { useNotification } from "./hooks/useNotification";
 import { storage } from "./store/storage";
 import { isNewDay, getTodayDateString } from "./utils/dateHelpers";
 import { getIncompleteTasks } from "./utils/taskHelpers";
+import { migrateTasks, needsMigration } from "./utils/migration";
 import { TabType } from "./types";
 import "./App.css";
 
@@ -38,6 +39,46 @@ function App() {
 
   // Get current tasks based on active tab
   const currentTasks = activeTab === "today" ? todayTasks : mustDoTasks;
+
+  // Run data migration on mount
+  useEffect(() => {
+    const runMigration = async () => {
+      // Migrate Today Tasks
+      const todayTasksData = await storage.getTodayTasks();
+      if (needsMigration(todayTasksData)) {
+        const migratedTodayTasks = migrateTasks(todayTasksData);
+        await storage.setTodayTasks(migratedTodayTasks);
+        todayTasks.updateTasks(migratedTodayTasks);
+      }
+
+      // Migrate Must-Do Tasks
+      const mustDoTasksData = await storage.getMustDoTasks();
+      if (needsMigration(mustDoTasksData)) {
+        const migratedMustDoTasks = migrateTasks(mustDoTasksData);
+        await storage.setMustDoTasks(migratedMustDoTasks);
+        mustDoTasks.updateTasks(migratedMustDoTasks);
+      }
+
+      // Migrate History
+      const history = await storage.getTaskHistory();
+      let historyNeedsMigration = false;
+      const migratedHistory = { ...history };
+
+      Object.keys(migratedHistory).forEach((date) => {
+        const entry = migratedHistory[date];
+        if (needsMigration(entry.tasks)) {
+          historyNeedsMigration = true;
+          entry.tasks = migrateTasks(entry.tasks);
+        }
+      });
+
+      if (historyNeedsMigration) {
+        await storage.setTaskHistory(migratedHistory);
+      }
+    };
+
+    runMigration();
+  }, []); // Run only once on mount
 
   // Check for day transition on mount and periodically
   useEffect(() => {

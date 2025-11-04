@@ -90,6 +90,7 @@ describe("Storage Operations", () => {
         completed: false,
         subtasks: [],
         expanded: false,
+        created_at: new Date().toISOString(),
       },
     ];
 
@@ -129,6 +130,7 @@ describe("Storage Operations", () => {
         completed: false,
         subtasks: [],
         expanded: false,
+        created_at: new Date().toISOString(),
       },
     ];
 
@@ -166,6 +168,7 @@ describe("Storage Operations", () => {
             completed: true,
             subtasks: [],
             expanded: false,
+            created_at: new Date().toISOString(),
           },
         ],
         completed: 1,
