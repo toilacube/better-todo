@@ -21,7 +21,7 @@ A minimalist, cross-platform todo application built with React, TypeScript, and 
 
 - [Node.js](https://nodejs.org/) (v22 or higher)
 - [Rust](https://www.rust-lang.org/tools/install) (for Tauri)
-
+- [Tauri prerequisites](https://tauri.app/start/prerequisites/)
 ### Installation
 
 1. Clone the repository:
