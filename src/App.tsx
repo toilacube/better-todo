@@ -145,6 +145,17 @@ function App() {
     await updateSettings({ darkMode: !settings.darkMode });
   };
 
+  const handleSaveTodayToHistory = async () => {
+    const todayDate = getTodayDateString();
+    const currentTasks = await storage.getTodayTasks();
+
+    if (currentTasks.length > 0) {
+      await addHistoryEntry(todayDate, currentTasks);
+      // Trigger a reload to refresh the statistics
+      setReloadTrigger((prev) => prev + 1);
+    }
+  };
+
   if (view === "statistics") {
     return (
       <Statistics
@@ -152,6 +163,7 @@ function App() {
         todayTasks={todayTasks.tasks}
         mustDoTasks={mustDoTasks.tasks}
         onBack={() => setView("main")}
+        onSaveTodayToHistory={handleSaveTodayToHistory}
       />
     );
   }

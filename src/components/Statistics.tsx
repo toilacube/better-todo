@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { ArrowLeft, Download, X } from "lucide-react";
+import { ArrowLeft, Download, X, Save } from "lucide-react";
 import { motion } from "framer-motion";
 import { HistoryEntry, Task, TaskHistory, ExportOptions } from "../types";
-import { formatDate } from "../utils/dateHelpers";
+import { formatDate, getTodayDateString } from "../utils/dateHelpers";
 import { countTasks, calculateTaskDuration } from "../utils/taskHelpers";
 import { generateMarkdownExport, downloadMarkdownFile } from "../utils/exportHelpers";
 import {
@@ -30,6 +30,7 @@ interface StatisticsProps {
   todayTasks: Task[];
   mustDoTasks: Task[];
   onBack: () => void;
+  onSaveTodayToHistory: () => Promise<void>;
 }
 
 export const Statistics: React.FC<StatisticsProps> = ({
@@ -37,10 +38,12 @@ export const Statistics: React.FC<StatisticsProps> = ({
   todayTasks,
   mustDoTasks,
   onBack,
+  onSaveTodayToHistory,
 }) => {
   const [timePeriod, setTimePeriod] = useState<TimePeriod>(30);
   const [taskFilter, setTaskFilter] = useState<TaskFilter>("all");
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [exportOptions, setExportOptions] = useState<ExportOptions>({
     status: "all",
     dateRange: 5,
@@ -147,6 +150,32 @@ export const Statistics: React.FC<StatisticsProps> = ({
     setIsExportModalOpen(false);
   };
 
+  // Save today to history handler
+  const handleSaveTodayToHistory = async () => {
+    if (todayTasks.length === 0) {
+      return; // Nothing to save
+    }
+
+    // Check if today's tasks are already in history
+    const todayDate = getTodayDateString();
+    const alreadySaved = history.some(entry => entry.date === todayDate);
+
+    if (alreadySaved) {
+      // Could show a notification here
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await onSaveTodayToHistory();
+      // Wait a bit for the UI to update
+      setTimeout(() => setIsSaving(false), 500);
+    } catch (error) {
+      console.error("Failed to save today to history:", error);
+      setIsSaving(false);
+    }
+  };
+
   return (
     <motion.div
       className="statistics-page"
@@ -202,16 +231,31 @@ export const Statistics: React.FC<StatisticsProps> = ({
               </button>
             </div>
 
-            {/* Export Button */}
-            <motion.button
-              className="export-button"
-              onClick={() => setIsExportModalOpen(true)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Download size={18} strokeWidth={1.5} />
-              <span>Export</span>
-            </motion.button>
+            <div className="action-buttons">
+              {/* Save Today Button */}
+              <motion.button
+                className="save-today-button"
+                onClick={handleSaveTodayToHistory}
+                disabled={isSaving || todayTasks.length === 0}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                title="Save today's tasks to history"
+              >
+                <Save size={18} strokeWidth={1.5} />
+                <span>{isSaving ? "Saving..." : "Save Today"}</span>
+              </motion.button>
+
+              {/* Export Button */}
+              <motion.button
+                className="export-button"
+                onClick={() => setIsExportModalOpen(true)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Download size={18} strokeWidth={1.5} />
+                <span>Export</span>
+              </motion.button>
+            </div>
           </div>
         </div>
 

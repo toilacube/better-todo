@@ -364,6 +364,43 @@
   flex-wrap: wrap;
 }
 
+/* Action Buttons Container */
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+/* Save Today Button */
+.save-today-button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid rgba(0, 0, 0, var(--opacity-ghost));
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: opacity var(--duration-fast) var(--ease-smooth),
+    background-color var(--duration-fast) var(--ease-smooth),
+    color var(--duration-fast) var(--ease-smooth),
+    border-color var(--duration-fast) var(--ease-smooth);
+  white-space: nowrap;
+}
+
+.save-today-button:hover:not(:disabled) {
+  background-color: rgba(0, 0, 0, var(--opacity-ghost));
+  border-color: rgba(0, 0, 0, var(--opacity-muted));
+}
+
+.save-today-button:disabled {
+  opacity: var(--opacity-ghost);
+  cursor: not-allowed;
+}
+
 /* Export Button */
 .export-button {
   display: flex;
@@ -628,6 +665,12 @@
     text-align: center;
   }
 
+  .action-buttons {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .save-today-button,
   .export-button {
     width: 100%;
     justify-content: center;

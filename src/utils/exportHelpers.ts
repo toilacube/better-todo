@@ -134,38 +134,41 @@ export const generateMarkdownExport = (
 ): string => {
   let markdown = "# Task History Export\n\n";
 
-  // Combine all tasks from history and today
-  const allDates = Object.keys(taskHistory);
   const todayDateString = getTodayDateString();
+  const todayDate = new Date(todayDateString);
+  todayDate.setHours(0, 0, 0, 0);
 
-  // Create a map to collect all tasks
-  const allTasksByDate = new Map<string, Task[]>();
+  // Group historical tasks (excluding today) by their completion/creation dates
+  const allDates = Object.keys(taskHistory).filter(date => date !== todayDateString);
+  const historicalTasks: Task[] = [];
 
-  // Add tasks from history
   allDates.forEach((dateString) => {
     const entry = taskHistory[dateString];
     if (entry.tasks && entry.tasks.length > 0) {
-      allTasksByDate.set(dateString, entry.tasks);
+      historicalTasks.push(...entry.tasks);
     }
   });
 
-  // Add today's tasks
-  if (todayTasks.length > 0) {
-    allTasksByDate.set(todayDateString, todayTasks);
-  }
-
-  // Flatten the tasks from all dates
-  const allTasks: Task[] = [];
-  allTasksByDate.forEach((tasks) => {
-    allTasks.push(...tasks);
-  });
-
-  // Group tasks by date based on completion status
+  // Group historical tasks by date based on completion status
   const tasksByDate = groupTasksByDate(
-    allTasks,
+    historicalTasks,
     options.status,
     false // Don't flatten yet - we'll handle hierarchy in formatting
   );
+
+  // Add today's tasks directly under today's date (without regrouping)
+  if (todayTasks.length > 0) {
+    // Filter today's tasks by status
+    const filteredTodayTasks = todayTasks.filter((task) => {
+      if (options.status === "completed") return task.completed;
+      if (options.status === "incomplete") return !task.completed;
+      return true; // "all"
+    });
+
+    if (filteredTodayTasks.length > 0) {
+      tasksByDate.set(todayDate.toDateString(), filteredTodayTasks);
+    }
+  }
 
   // Filter by date range
   const filteredTasks = filterByDateRange(tasksByDate, options.dateRange);
